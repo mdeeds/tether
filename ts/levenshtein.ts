@@ -1,8 +1,11 @@
+
+type Operation = ("edit" | "add" | "delete");
+
 export class Edit<T> {
   index: number;
-  operation: string;
+  operation: Operation;
   value: T;
-  constructor(index: number, operation: string, value: T = null) {
+  constructor(index: number, operation: Operation, value: T = null) {
     this.index = index;
     this.operation = operation;
     this.value = value;
