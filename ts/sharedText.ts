@@ -22,9 +22,18 @@ export class SharedText {
     const previousLines = this.getLines();
     const newLines = Levenshtein.splitLines(newValue);
     const delta = Levenshtein.distance<string>(previousLines, newLines);
+
+    if (this.previous &&
+      delta.length === 1 && this.previous.delta.length === 1) {
+      if (delta[0].index === this.previous.delta[0].index &&
+        delta[0].operation === "edit" &&
+        this.previous.delta[0].operation === "edit") {
+        return new SharedText(this.previous, delta);
+      }
+    }
+
     return new SharedText(this, delta);
   }
-
 
   // https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
   private hashInternal(): number {
@@ -55,5 +64,12 @@ export class SharedText {
       Levenshtein.applyEdits<string>(lines, this.delta);
       return lines;
     }
+  }
+
+  printDebugDeltas() {
+    if (this.previous) {
+      this.previous.printDebugDeltas();
+    }
+    console.log(JSON.stringify(this.delta));
   }
 }
