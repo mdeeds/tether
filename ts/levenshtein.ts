@@ -22,6 +22,9 @@ export class Levenshtein<T> {
   }
 
   static applyEdits<T>(s: T[], edits: Edit<T>[]) {
+    if (edits === undefined) {
+      throw new Error("Edits are required.");
+    }
     for (const edit of edits) {
       if (edit.operation === "edit") {
         s[edit.index] = edit.value;

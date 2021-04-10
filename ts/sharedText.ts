@@ -1,9 +1,10 @@
 import { Edit, Levenshtein } from "./levenshtein";
+import { Patch } from "./patch";
 
 // Immutable string content based on a sequence of edits.
 export class SharedText {
 
-  static empty() {
+  static empty(): SharedText {
     return new SharedText(null, []);
   }
 
@@ -11,10 +12,10 @@ export class SharedText {
   private delta: Edit<string>[];
   readonly hash: number;
   readonly previous: SharedText;
-  constructor(previous: SharedText, delta: Edit<string>[]) {
+
+  private constructor(previous: SharedText, delta: Edit<string>[]) {
     this.previous = previous;
     this.delta = delta;
-
     this.hash = this.hashInternal();
   }
 
@@ -35,9 +36,35 @@ export class SharedText {
     return new SharedText(this, delta);
   }
 
+  makePatch(hash: number): Patch {
+    let root: SharedText = this;
+    const patchStack: SharedText[] = [];
+    while (root != null && root.hash != hash) {
+      patchStack.push(root);
+      root = root.previous;
+    }
+    if (root === null) {
+      throw `Hash not found: ${hash}`;
+    }
+    const patch: Patch = new Patch();
+    while (patchStack.length > 0) {
+      const st = patchStack.pop();
+      patch.push(st.delta);
+    }
+    return patch;
+  }
+
+  apply(patch: Patch): SharedText {
+    return new SharedText(this, patch.getEdits());
+  }
+
+  merge(other: SharedText): SharedText {
+    throw "Not implemented";
+  }
+
   // https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
   private hashInternal(): number {
-    const value = this.getValue();
+    const value = Levenshtein.combineLines(this.getLines());
     let hash = 0;
     for (let i = 0; i < value.length; ++i) {
       const char = value.charCodeAt(i);
