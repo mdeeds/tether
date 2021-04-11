@@ -54,7 +54,7 @@ export class SharedText {
     return patch;
   }
 
-  apply(patch: Patch): SharedText {
+  applyPatch(patch: Patch): SharedText {
     return new SharedText(this, patch.getEdits());
   }
 

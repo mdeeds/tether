@@ -34,7 +34,7 @@ function testApplyPatch() {
   const versionBText = "A\nB\n1\nC\n";
   let versionB = versionA.child(versionBText);
   const patch = versionB.makePatch(versionA.hash);
-  const applied = versionA.apply(patch).getValue();
+  const applied = versionA.applyPatch(patch).getValue();
 
   console.log(`Applied: ${JSON.stringify(applied)}`);
   console.log(`versionBText: ${JSON.stringify(versionBText)}`);
@@ -57,7 +57,7 @@ function testApplyPatchMany() {
   }
   const versionBText = versionB.getValue();
   const patch = versionB.makePatch(versionA.hash);
-  const applied = versionA.apply(patch).getValue();
+  const applied = versionA.applyPatch(patch).getValue();
 
   console.log(`Applied: ${JSON.stringify(applied)}`);
   console.log(`versionBText: ${JSON.stringify(versionBText)}`);
