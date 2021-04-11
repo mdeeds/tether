@@ -34,9 +34,11 @@ function setAndCheckAB() {
   console.assert(stateA.getMy("One") === "Value A", 1);
   console.assert(stateB.getMy("One") === "Value B", 2);
   console.assert(stateA.getAll("One").indexOf("Value A") >= 0, 3);
-  console.assert(stateA.getAll("One").indexOf("Value B") >= 0, 4);
-  console.assert(stateB.getAll("One").indexOf("Value A") >= 0, 5);
-  console.assert(stateB.getAll("One").indexOf("Value B") >= 0, 6);
+  console.assert(stateB.getAll("One").indexOf("Value B") >= 0, 4);
+  setTimeout(() => {
+    console.assert(stateA.getAll("One").indexOf("Value B") >= 0, 5);
+    console.assert(stateB.getAll("One").indexOf("Value A") >= 0, 6);
+  }, 0);
 }
 
 setAndCheck();
