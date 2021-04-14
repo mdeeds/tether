@@ -36,6 +36,17 @@ export class SharedText {
     return new SharedText(this, delta);
   }
 
+  getParent(hash: number): SharedText {
+    let curr: SharedText = this;
+    while (curr != null && curr.hash != hash) {
+      curr = curr.previous;
+    }
+    if (curr === null) {
+      throw `Hash not found: ${hash}`;
+    }
+    return curr;
+  }
+
   makePatch(hash: number): Patch {
     let root: SharedText = this;
     const patchStack: SharedText[] = [];

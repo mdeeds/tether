@@ -41,6 +41,20 @@ function setAndCheckAB() {
   }, 0);
 }
 
+// function updateShared() {
+//   console.log('updateShared');
+//   const comms = new LocalComms();
+//   const stateA = new SharedState("A", comms);
+//   const stateB = new SharedState("B", comms);
+//   stateA.updateShared("One", "Value 1");
+//   stateA.updateShared("One", "Value 2");
+//   console.assert(stateA.getMy("One") === "Value 2"), 1;
+
+//   setTimeout(() => {
+//     console.assert(stateB.getMy("One") === "Value 2", 2);
+//   })
+// }
+
 setAndCheck();
 setAndCheck2();
 setAndCheckAB();

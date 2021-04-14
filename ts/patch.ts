@@ -1,15 +1,20 @@
 import { Edit, Levenshtein } from "./levenshtein";
 
+/***
+ * A mutable collection of edits.
+ */
 export class Patch {
   private edits: Edit<string>[] = [];
-  constructor() {
-  }
+  constructor() { }
 
   // Pushes edits onto the end of this patch.  Edits are applied in order.
   push(edits: Edit<string>[]) {
     this.edits.push(...edits);
   }
 
+  /***
+   * returns the edits in this patch.
+   */
   getEdits(): Edit<string>[] {
     if (this.edits === undefined) {
       throw new Error("No edits.  Invalid state.");
@@ -47,8 +52,10 @@ export class Patch {
     throw "Not implemented";
   }
 
-  // Merges other patch into this one.  Edits are applied from both
-  // patches highest index first.
+  /***
+   * Merges other patch into this one.  Edits are applied from both
+   * patches highest index first.
+   ***/
   merge(that: Patch) {
     this.sort();
     that.sort();

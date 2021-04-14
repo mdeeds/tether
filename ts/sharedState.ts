@@ -1,5 +1,6 @@
 import { Comms } from "./comms";
 import { Levenshtein } from "./levenshtein";
+import { Patch } from "./patch";
 import { SharedText } from "./sharedText";
 
 export class SharedState {
@@ -18,21 +19,41 @@ export class SharedState {
   }
 
   commsCallback(message: string) {
-    const kvRegex = /([^=]+)\=(.*)/;
-    const match = message.match(kvRegex);
-    if (!match[1] || !match[2]) {
-      throw new Error(`Failed to parse ${message}`);
-    }
-    this.state.set(match[1],
-      Buffer.from(match[2], 'base64').toString('binary'));
-    const namedRegex = /([^:]+):(.*)/;
-    const match2 = match[1].match(namedRegex);
-    if (match2[2]) {
-      const key = match2[2];
+    const namedRegex = /(([^=:#]+):[^=:#]+)\=(.*)/;
+    const namedMatch = message.match(namedRegex);
+    const sharedRegex = /([^=:#]+)#([^=:#]+)\=(.*)/;
+    const sharedMatch = message.match(sharedRegex);
+
+    if (namedMatch) {
+      const fullKey = namedMatch[1];
+      const value = Buffer.from(namedMatch[3], 'base64').toString('binary');
+
+      this.state.set(fullKey, value);
+      const key = namedMatch[2];
       if (!this.allKeys.has(key)) {
         this.allKeys.set(key, new Set<string>());
       }
-      this.allKeys.get(key).add(match[1]);
+      this.allKeys.get(key).add(fullKey);
+    } else if (sharedMatch) {
+      const key = sharedMatch[1];
+      const hash: number = parseInt(sharedMatch[2]);
+      const json = Buffer.from(sharedMatch[3], 'base64').toString('binary');
+      const patch = Object.assign(new Patch(), JSON.parse(json));
+      if (!this.sharedContent.has(key)) {
+        if (hash !== 0) {
+          throw new Error(`Never seen ${key} before, and hash is non-zero.`);
+        }
+        this.sharedContent.set(key, SharedText.empty().applyPatch(patch));
+      } else {
+        const currentContent = this.sharedContent.get(key)
+        const currentPatch = currentContent.makePatch(hash);
+        currentPatch.merge(patch);
+        const root = currentContent.getParent(hash);
+        const newContent = root.applyPatch(currentPatch);
+        this.sharedContent.set(key, newContent);
+      }
+    } else {
+      throw new Error(`Failed to parse ${message}`);
     }
   }
 
@@ -55,6 +76,9 @@ export class SharedState {
     } else {
       this.sharedContent.set(key, this.sharedContent.get(key).child(value));
     }
+    const hash = this.sharedContent.get(key).hash;
+    const encodedValue = Buffer.from(value, 'binary').toString('base64');
+    this.comms.sendMessage(`${key}#${hash}=${encodedValue}`);
   }
 
   // Gets value from current perspective 

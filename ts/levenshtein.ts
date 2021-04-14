@@ -17,6 +17,10 @@ export class Levenshtein<T> {
     return text.split("\n");
   }
 
+  static asEdits(text: string): Edit<string>[] {
+    return Levenshtein.distance<string>([], Levenshtein.splitLines(text));
+  }
+
   static combineLines(lines: string[]): string {
     return lines.join("\n");
   }
