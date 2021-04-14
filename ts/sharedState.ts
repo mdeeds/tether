@@ -1,5 +1,4 @@
 import { Comms } from "./comms";
-import { Levenshtein } from "./levenshtein";
 import { Patch } from "./patch";
 import { SharedText } from "./sharedText";
 
@@ -15,14 +14,12 @@ export class SharedState {
   constructor(name: string, comms: Comms) {
     this.name = name;
     this.comms = comms;
-    comms.addListener((message) => { this.commsCallback(message); });
+    comms.addListener(this.name, (message) => { this.commsCallback(message); });
   }
 
   commsCallback(message: string) {
-    const namedRegex = /(([^=:#]+):[^=:#]+)\=(.*)/;
-    const namedMatch = message.match(namedRegex);
-    const sharedRegex = /([^=:#]+)#([^=:#]+)\=(.*)/;
-    const sharedMatch = message.match(sharedRegex);
+    const namedMatch = message.match(/(([^=:#]+):[^=:#]+)\=(.*)/);
+    const sharedMatch = message.match(/([^=:#]+)#([^=:#]+)\=(.*)/);
 
     if (namedMatch) {
       const fullKey = namedMatch[1];
@@ -66,7 +63,7 @@ export class SharedState {
     this.allKeys.get(key).add(fullKey);
     this.state.set(fullKey, value);
     const encodedValue = Buffer.from(value, 'binary').toString('base64');
-    this.comms.sendMessage(`${fullKey}=${encodedValue}`);
+    this.comms.sendMessage(this.name, `${fullKey}=${encodedValue}`);
   }
 
   // Best effort update.  (E.g. text area)
@@ -78,7 +75,7 @@ export class SharedState {
     }
     const hash = this.sharedContent.get(key).hash;
     const encodedValue = Buffer.from(value, 'binary').toString('base64');
-    this.comms.sendMessage(`${key}#${hash}=${encodedValue}`);
+    this.comms.sendMessage(this.name, `${key}#${hash}=${encodedValue}`);
   }
 
   // Gets value from current perspective 
