@@ -1,4 +1,4 @@
-import { CommChannel } from "./comms";
+import { CommChannel } from "./commChannel";
 import { Patch } from "./patch";
 import { SharedText } from "./sharedText";
 

@@ -1,4 +1,4 @@
-import { AskCallback, CommChannel, MessageCallback } from "./comms";
+import { AskCallback, CommChannel, MessageCallback } from "./commChannel";
 
 export class LocalCommChannel implements CommChannel {
   callbacks: Map<string, MessageCallback> = new Map<string, MessageCallback>();

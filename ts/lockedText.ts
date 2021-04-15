@@ -1,4 +1,4 @@
-import { CommChannel } from "./comms";
+import { CommChannel } from "./commChannel";
 
 export class LockedText {
   readonly myId: string;

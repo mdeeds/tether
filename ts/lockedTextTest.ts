@@ -1,4 +1,4 @@
-import { CommChannel } from "./comms";
+import { CommChannel } from "./commChannel";
 import { LocalCommChannel } from "./localComms";
 import { LockedText } from "./lockedText";
 
