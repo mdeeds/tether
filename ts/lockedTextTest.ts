@@ -1,10 +1,10 @@
-import { Comms } from "./comms";
-import { LocalComms } from "./localComms";
+import { CommChannel } from "./comms";
+import { LocalCommChannel } from "./localComms";
 import { LockedText } from "./lockedText";
 
 async function TestUpdateText() {
   console.log('TestUpdateText');
-  const comms: Comms = new LocalComms();
+  const comms: CommChannel = new LocalCommChannel();
   const text = new LockedText('ID1', comms);
 
   text.takeLock();
@@ -16,7 +16,7 @@ async function TestUpdateText() {
 
 async function TestUpdateTextAB() {
   console.log('TestUpdateTextAB');
-  const comms: Comms = new LocalComms();
+  const comms: CommChannel = new LocalCommChannel();
   // Imagine that textA is on one machine and textB is on another.
   const textA = new LockedText('IDA', comms);
   const textB = new LockedText('IDB', comms);

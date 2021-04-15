@@ -1,17 +1,17 @@
-import { Comms } from "./comms";
+import { CommChannel } from "./comms";
 import { Patch } from "./patch";
 import { SharedText } from "./sharedText";
 
 export class SharedState {
   name: string;
-  comms: Comms;
+  comms: CommChannel;
   state: Map<string, string> = new Map<string, string>();
   sharedContent: Map<string, SharedText> = new Map<string, SharedText>();
 
   // Maps a key to the known name:key pairs.
   allKeys: Map<string, Set<string>> = new Map<string, Set<string>>();
   // Constructs a new shared state from the perspective of `name`.
-  constructor(name: string, comms: Comms) {
+  constructor(name: string, comms: CommChannel) {
     this.name = name;
     this.comms = comms;
     comms.addListener(this.name, (message) => { this.commsCallback(message); });

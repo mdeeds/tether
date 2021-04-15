@@ -1,13 +1,11 @@
-import { Comms } from "./comms";
-
-type Secret = number;
+import { CommChannel } from "./comms";
 
 export class LockedText {
   readonly myId: string;
-  private readonly comms: Comms;
+  private readonly comms: CommChannel;
   private currentOwnerId: string = null;
   private text: string;
-  constructor(myId: string, comms: Comms) {
+  constructor(myId: string, comms: CommChannel) {
     this.myId = myId;
     this.comms = comms;
     this.comms.addListener(myId,
@@ -37,9 +35,7 @@ export class LockedText {
         if (this.myId !== this.currentOwnerId) {
           this.text = value;
         } else {
-          console.error('Unexpected: someone else thinks they own this.');
-          console.error(`  ${message}`);
-          console.error(`  this.myId=${this.myId} this.currentOwnerId=${this.currentOwnerId}`);
+          throw new Error('Should not talk to oneself.')
         }
         break;
     }
@@ -56,7 +52,6 @@ export class LockedText {
     });
   }
 
-
   async takeLock() {
     if (this.currentOwnerId && this.currentOwnerId != this.myId) {
       const reply = await this.comms.ask(this.myId, this.currentOwnerId, 'take');
@@ -68,7 +63,7 @@ export class LockedText {
     this.comms.sendMessage(this.myId, `owner:${this.myId}`);
   }
 
-  /**
+  /** 
    * 
    * @param text New value
    * @param key Secret key

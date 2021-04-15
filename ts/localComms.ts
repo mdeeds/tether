@@ -1,6 +1,6 @@
-import { AskCallback, Comms, MessageCallback } from "./comms";
+import { AskCallback, CommChannel, MessageCallback } from "./comms";
 
-export class LocalComms implements Comms {
+export class LocalCommChannel implements CommChannel {
   callbacks: Map<string, MessageCallback> = new Map<string, MessageCallback>();
   agents: Map<string, AskCallback> = new Map<string, AskCallback>();
   constructor() { }

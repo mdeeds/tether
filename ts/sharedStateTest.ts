@@ -1,9 +1,9 @@
-import { LocalComms } from "./localComms";
+import { LocalCommChannel } from "./localComms";
 import { SharedState } from "./sharedState";
 
 function setAndCheck() {
   console.log('setAndCheck()');
-  const comms = new LocalComms();
+  const comms = new LocalCommChannel();
 
   const state = new SharedState("A", comms);
 
@@ -13,7 +13,7 @@ function setAndCheck() {
 
 function setAndCheck2() {
   console.log('setAndCheck2()');
-  const comms = new LocalComms();
+  const comms = new LocalCommChannel();
 
   const state = new SharedState("A", comms);
 
@@ -23,7 +23,7 @@ function setAndCheck2() {
 
 function setAndCheckAB() {
   console.log('setAndCheckAB()');
-  const comms = new LocalComms();
+  const comms = new LocalCommChannel();
   const stateA = new SharedState("A", comms);
   const stateB = new SharedState("B", comms);
 
