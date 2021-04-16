@@ -7,8 +7,8 @@ async function testAB() {
   console.log('testAB');
   const commGroup = CommGroup.localCommGroup();
 
-  const channelOne = commGroup.getOrCreate('1');
-  const channelTwo = commGroup.getOrCreate('2');
+  const channelOne = commGroup.getOrCreate('One');
+  const channelTwo = commGroup.getOrCreate('Two');
 
   const textA = [
     new LockedText('A', channelOne),
@@ -19,13 +19,14 @@ async function testAB() {
     new LockedText('B', channelTwo)];
 
   for (let i = 0; i < 2; ++i) {
-    textA[i].takeLock();
+    await textA[i].takeLock();
     textA[i].update(`Channel ${i}`);
   }
   await new Promise((resolve, reject) => { setTimeout(resolve, 0); });
 
   for (let i = 0; i < 2; ++i) {
-    console.assert(textB[i].get() === `Channel ${i}`, i);
+    console.assert(textB[i].get() === `Channel ${i}`,
+      `${i} Actual: ${textB[i].get()}`);
   }
 }
 

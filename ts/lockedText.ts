@@ -52,7 +52,7 @@ export class LockedText {
     });
   }
 
-  async takeLock() {
+  async takeLock(): Promise<void> {
     if (this.currentOwnerId && this.currentOwnerId != this.myId) {
       const reply = await this.comms.ask(this.myId, this.currentOwnerId, 'take');
       this.text = reply;

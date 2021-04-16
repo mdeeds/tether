@@ -1,3 +1,4 @@
+import { rejects } from "assert";
 import { AskCallback, CommChannel, MessageCallback } from "./commChannel";
 
 export class LocalCommChannel implements CommChannel {
@@ -12,6 +13,7 @@ export class LocalCommChannel implements CommChannel {
     setTimeout(() => {
       for (const [id, callback] of this.callbacks) {
         if (id !== from) {
+          console.log(`===== ${message} to ${id} =====`)
           callback(message);
         }
       }
@@ -19,11 +21,37 @@ export class LocalCommChannel implements CommChannel {
   }
 
   addListener(to: string, callback: MessageCallback): void {
-    this.callbacks.set(to, callback);
+    if (this.callbacks.has(to)) {
+      const previousCallback = this.callbacks.get(to);
+      // Chain
+      this.callbacks.set(to, (message) => {
+        previousCallback(message);
+        callback(message);
+      })
+    } else {
+      this.callbacks.set(to, callback);
+    }
   }
 
   addReply(name: string, callback: AskCallback): void {
-    this.agents.set(name, callback);
+    if (this.agents.has(name)) {
+      const previousCallback = this.agents.get(name);
+      // Chain the new callback before the first callback.
+      // If the new callback fails, we process the previous one.
+      this.agents.set(name, (from: string, message: string) => {
+        return new Promise((resolve, reject) => {
+          callback(from, message)
+            .then((response: string) => {
+              resolve(response);
+            })
+            .catch(() => {
+              return previousCallback(from, message);
+            });
+        });
+      });
+    } else {
+      this.agents.set(name, callback);
+    }
   }
 
   ask(from: string, to: string, message: string): Promise<string> {
