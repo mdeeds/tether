@@ -40,8 +40,13 @@ export class PeerGroup {
     this.conn.on('connection', (dataConnection: DataConnectionInterface) => {
       console.log(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
       if (!this.peers.has(dataConnection.peer)) {
-        this.peers.set(dataConnection.peer, dataConnection);
-        this.conn.connect(dataConnection.peer);
+        // dataConnection is an inbound conneciton.  We need to establish
+        // a new outbound one.
+        const peerConnection = this.conn.connect(dataConnection.peer);
+        if (peerConnection.peer != dataConnection.peer) {
+          throw new Error('WHAT?');
+        }
+        this.peers.set(peerConnection.peer, peerConnection);
       }
       dataConnection.on('data', (data: string) => {
         console.log(`AAAAA data (${this.id})<-${dataConnection.peer}`);

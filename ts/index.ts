@@ -6,7 +6,6 @@ const body = document.getElementsByTagName('body')[0];
 const url = new URL(document.URL);
 
 async function test() {
-  console.log('testJoin');
   const host = new Peer();
   const hostGroup = await PeerGroup.make(host);
   console.log(`Host: ${host.id}`);
@@ -25,9 +24,13 @@ async function test() {
 
   console.log('============== pause ================');
   await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
-
   clientGroup.broadcast('B:0');
   hostGroup.broadcast('A:1');
+
+  console.log('============== pause ================');
+  await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
+  clientGroup.broadcast('B:2');
+  hostGroup.broadcast('A:3');
 
   console.log('============== pause ================');
   await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
