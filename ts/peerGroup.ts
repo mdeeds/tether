@@ -40,6 +40,7 @@ export class PeerGroup {
     this.conn.on('connection', (dataConnection: DataConnectionInterface) => {
       console.log(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
       if (!this.peers.has(dataConnection.peer)) {
+        this.broadcast(`meet:${dataConnection.peer}`);
         // dataConnection is an inbound conneciton.  We need to establish
         // a new outbound one.
         const peerConnection = this.conn.connect(dataConnection.peer);
@@ -56,6 +57,13 @@ export class PeerGroup {
     this.conn.on('disconnected', () => {
       console.log(`AAAAA disconnected (${this.id})`);
       setTimeout(() => { this.conn.reconnect() }, 5000);
+    });
+
+    this.addCallback('meet', (peerId: string) => {
+      if (!this.peers.has(peerId)) {
+        const peerConnection = this.conn.connect(peerId);
+        this.peers.set(peerId, peerConnection);
+      }
     });
   }
 
