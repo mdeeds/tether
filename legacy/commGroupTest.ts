@@ -1,11 +1,13 @@
-import { rejects } from "assert";
-import { resolve } from "path";
+import { CommChannel } from "./commChannel";
 import { CommGroup } from "./commGroup";
+import { LocalPeer } from "./localPeer";
 import { LockedText } from "./lockedText";
 
 async function testAB() {
   console.log('testAB');
-  const commGroup = CommGroup.localCommGroup();
+  const conduit = new LocalPeer();
+  const localChannel = new CommChannel(conduit);
+  const commGroup = new CommGroup(localChannel);
 
   const channelOne = commGroup.getOrCreate('One');
   const channelTwo = commGroup.getOrCreate('Two');

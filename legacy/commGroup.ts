@@ -1,10 +1,9 @@
-import { AskCallback, CommChannel, MessageCallback } from "./commChannel";
-import { LocalCommChannel } from "./localComms";
+import { AskCallback, CommChannelInterface, MessageCallback } from "./commChannelInterface";
 
-class SubChannel implements CommChannel {
+class SubChannel implements CommChannelInterface {
   private channelName: string;
-  private baseChannel: CommChannel;
-  constructor(name: string, baseChannel: CommChannel) {
+  private baseChannel: CommChannelInterface;
+  constructor(name: string, baseChannel: CommChannelInterface) {
     this.channelName = name;
     this.baseChannel = baseChannel;
   }
@@ -38,22 +37,18 @@ class SubChannel implements CommChannel {
 }
 
 export class CommGroup {
-  private channels: Map<string, CommChannel> = new Map<string, CommChannel>();
-  private baseChannel: CommChannel;
+  private channels: Map<string, CommChannelInterface> = new Map<string, CommChannelInterface>();
+  private baseChannel: CommChannelInterface;
 
-  constructor(baseChannel: CommChannel) {
+  constructor(baseChannel: CommChannelInterface) {
     this.baseChannel = baseChannel;
   }
 
-  getOrCreate(name: string): CommChannel {
+  getOrCreate(name: string): CommChannelInterface {
     if (!this.channels.has(name)) {
       const comm = new SubChannel(name, this.baseChannel);
       this.channels.set(name, comm);
     }
     return this.channels.get(name);
-  }
-
-  static localCommGroup() {
-    return new CommGroup(new LocalCommChannel());
   }
 }

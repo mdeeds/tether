@@ -1,4 +1,4 @@
-import { LocalCommChannel } from "./localComms";
+import { LocalCommChannel } from "./localPeer";
 import { SharedState } from "./sharedState";
 
 function setAndCheck() {

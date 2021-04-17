@@ -1,0 +1,38 @@
+body {
+  background-color: #222;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #ff9;
+  flex-direction: column;
+}
+
+#mainArea {
+  padding: 10px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  flex-grow: 1;
+}
+
+.tab {
+  box-shadow: #fff 2px 2px 5px;
+  margin: 5px;
+  padding: 5px;
+}
+
+#editArea {
+  box-shadow: #fff 2px 2px 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.testBox {
+  box-shadow: #fff 2px 2px 5px;
+  height: 100px;
+  margin: 10px;
+  padding: 2px;
+}
+
+:focus {
+  border: none;
+  outline: none;
+}

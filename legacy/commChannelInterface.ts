@@ -1,7 +1,7 @@
 export type MessageCallback = (message: string) => void;
 export type AskCallback = (from: string, message: string) => Promise<string>;
 
-export interface CommChannel {
+export interface CommChannelInterface {
   /**
    * Sends a message to all known listeners.  Does not send the message
    * back to the one sending the message.

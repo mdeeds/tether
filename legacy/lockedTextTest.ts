@@ -1,10 +1,10 @@
-import { CommChannel } from "./commChannel";
-import { LocalCommChannel } from "./localComms";
+import { CommChannelInterface } from "./commChannelInterface";
+import { LocalCommChannel } from "./localPeer";
 import { LockedText } from "./lockedText";
 
 async function TestUpdateText() {
   console.log('TestUpdateText');
-  const comms: CommChannel = new LocalCommChannel();
+  const comms: CommChannelInterface = new LocalCommChannel();
   const text = new LockedText('ID1', comms);
 
   text.takeLock();
@@ -16,7 +16,7 @@ async function TestUpdateText() {
 
 async function TestUpdateTextAB() {
   console.log('TestUpdateTextAB');
-  const comms: CommChannel = new LocalCommChannel();
+  const comms: CommChannelInterface = new LocalCommChannel();
   // Imagine that textA is on one machine and textB is on another.
   const textA = new LockedText('IDA', comms);
   const textB = new LockedText('IDB', comms);

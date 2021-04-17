@@ -1,11 +1,11 @@
-import { CommChannel } from "./commChannel";
+import { CommChannelInterface } from "./commChannelInterface";
 
 export class LockedText {
   readonly myId: string;
-  private readonly comms: CommChannel;
+  private readonly comms: CommChannelInterface;
   private currentOwnerId: string = null;
   private text: string;
-  constructor(myId: string, comms: CommChannel) {
+  constructor(myId: string, comms: CommChannelInterface) {
     this.myId = myId;
     this.comms = comms;
     this.comms.addListener(myId,

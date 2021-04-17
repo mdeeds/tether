@@ -1,103 +1,81 @@
-import Peer, { DataConnection } from "peerjs";
+import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 
 type NamedCallbackFn = (data: string) => void;
-type DataCallbackFn = (ev: string, id: string, message: string) => void;
+type DebugCallbackFn = (ev: string, id: string, message: string) => void;
 
 export class PeerGroup {
-  static make(joinId: string = null, callback: DataCallbackFn = null)
+  static make(conn: PeerInterface, joinId: string = null)
     : Promise<PeerGroup> {
     return new Promise((resolve, reject) => {
-      const result = new PeerGroup(joinId);
-      if (callback) {
-        result.addDataCallback(callback);
-      }
+      const result = new PeerGroup(joinId, conn);
       result.getId().then(() => {
         resolve(result);
       });
     });
   }
 
-  private conn: Peer;
+  private conn: PeerInterface;
   private peers
-    : Map<string, DataConnection> = new Map<string, DataConnection>();
+    : Map<string, DataConnectionInterface> = new Map<string, DataConnectionInterface>();
   private id: string = null;
   private readyCallback: Function[] = [];
-  private dataCallbacks: DataCallbackFn[] = [];
   private namedCallbacks: Map<string, NamedCallbackFn> =
     new Map<string, NamedCallbackFn>();
 
-  private constructor(joinId: string = null) {
-    // https://github.com/peers/peerjs-server
-    // peerjs --port 9000 --key peerjs --path /
-    // this.peer = new Peer(id, { host: '/', port: 9000 });
-    // Go here to start the host:
-    // https://ivory-python-8wtvfdje.ws-us03.gitpod.io/#/workspace/peerjs-server
-    // this.peer = new Peer(
-    //   id, { host: '9000-ivory-python-8wtvfdje.ws-us03.gitpod.io' });
-    this.conn = new Peer(null, {});
-    this.conn.on('open', (id: string) => {
-      this.runCallbacks('open', id, '');
+  private constructor(joinId: string = null, conn: PeerInterface) {
+    this.conn = conn;
+    this.conn.on('open', async (id: string) => {
       this.id = id;
+      console.log(`AAAAA open (${this.id})`);
       if (joinId) {
-        this.meet(joinId);
+        const peerConnection = this.conn.connect(joinId);
+        this.peers.set(peerConnection.peer, peerConnection);
       }
       for (const cb of this.readyCallback) {
         cb(id);
       }
+      this.readyCallback.splice(0);
     });
 
-    this.conn.on('connection', (conn) => {
-      this.runCallbacks('connection', conn.peer, '');
-      if (!conn.open) {
-        conn.on('open', () => {
-          this.setAndIntroduce(conn.peer, conn);
-        });
-      } else {
-        this.setAndIntroduce(conn.peer, conn);
+    this.conn.on('connection', (dataConnection: DataConnectionInterface) => {
+      console.log(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
+      if (!this.peers.has(dataConnection.peer)) {
+        this.peers.set(dataConnection.peer, dataConnection);
+        this.conn.connect(dataConnection.peer);
       }
-      conn.on('data', (data) => {
-        this.runCallbacks('data', conn.peer, data);
-        this.handleData(data);
+      dataConnection.on('data', (data: string) => {
+        console.log(`AAAAA data (${this.id})<-${dataConnection.peer}`);
+        this.handleData(dataConnection.peer, data);
       });
     });
     this.conn.on('disconnected', () => {
-      this.runCallbacks('disconnected', '', '');
+      console.log(`AAAAA disconnected (${this.id})`);
       setTimeout(() => { this.conn.reconnect() }, 5000);
     });
   }
 
-  private setAndIntroduce(id: string, conn: DataConnection) {
-    if (!this.peers.has(id)) {
-      this.broadcast(`meet: ${id}`);
-      this.peers.set(id, conn);
+  broadcast(message: string) {
+    console.log(`AAAAA broadcast (${this.id}) '${message}'`);
+    for (const [id, conn] of this.peers.entries()) {
+      if (id === this.id) {
+        throw new Error("I know myself already.");
+      }
+      if (conn.open) {
+        console.log(`AAAAA send (${this.id}) '${message}'`);
+        conn.send(message);
+      } else {
+        console.log(`AAAAA wait for open (${this.id})`);
+        conn.on('open', () => {
+          console.log(`AAAAA open-send (${this.id}) '${message}'`);
+          conn.send(message);
+        })
+      }
     }
   }
 
   addCallback(name: string, f: NamedCallbackFn) {
+    console.log(`AAAAA addCallback (${this.id}) '${name}'`);
     this.namedCallbacks.set(name, f);
-  }
-
-  private addDataCallback(f: DataCallbackFn) {
-    this.dataCallbacks.push(f);
-  }
-
-  private runCallbacks(ev: string, id: string, data: string) {
-    for (const f of this.dataCallbacks) {
-      f(ev, id, data);
-    }
-    if (ev === 'data') {
-      const reName = /^([^:]+): (.*)$/;
-      const match = data.match(reName);
-      if (match && match.length > 0) {
-        const name = match[1];
-        const message = match[2];
-        if (this.namedCallbacks.has(name)) {
-          const fn = this.namedCallbacks.get(name);
-          fn(message);
-          return;
-        }
-      }
-    }
   }
 
   getId(): Promise<string> {
@@ -110,38 +88,21 @@ export class PeerGroup {
     }
   }
 
-  broadcast(message: string) {
-    for (const [id, conn] of this.peers) {
-      if (id === this.conn.id) {
-        continue;
-      }
-      this.runCallbacks('send', id, message);
-      if (conn.open) {
-        conn.send(message);
-      } else {
-        this.runCallbacks('send', conn.peer, 'NOT OPEN');
-      }
+  private async handleData(from: string, data: string) {
+    console.log(`AAAAA (${this.id}): 13 ${data}`);
+    if (!this.peers.has(from)) {
+      this.conn.connect(from);
     }
-  }
-
-  private meet(joinId: string) {
-    const masterConnection = this.conn.connect(joinId);
-    masterConnection.on('open', () => {
-      this.runCallbacks('open', joinId, '');
-    });
-    masterConnection.on('data', (data) => {
-      this.runCallbacks('data', masterConnection.peer, data);
-      this.handleData(data);
-    })
-    this.setAndIntroduce(joinId, masterConnection);
-  }
-
-  private handleData(data: string) {
-    const keyPhrase = 'meet: ';
-    if (data.startsWith(keyPhrase)) {
-      const id = data.substr(keyPhrase.length);
-      if (!this.peers.has(id)) {
-        this.meet(id);
+    const match = data.match(/^([^:]+):(.*)$/);
+    if (match) {
+      const name = match[1];
+      const message = match[2];
+      console.log(`AAAAA: callback (${this.id}) '${name}'`);
+      if (this.namedCallbacks.has(name)) {
+        const fn = this.namedCallbacks.get(name);
+        console.log(`AAAAA callback (${this.id}) ${name}(${message})`);
+        fn(message);
+        return;
       }
     }
   }
