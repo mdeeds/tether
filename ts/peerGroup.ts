@@ -1,7 +1,7 @@
 import { Log } from "./log";
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 
-type NamedCallbackFn = (data: string) => void;
+type NamedCallbackFn = (fromId: string, data: string) => void;
 
 export class PeerGroup {
   static make(conn: PeerInterface, joinId: string = null)
@@ -53,7 +53,8 @@ export class PeerGroup {
         this.peers.set(peerConnection.peer, peerConnection);
       }
       dataConnection.on('data', (data: string) => {
-        Log.debug(`AAAAA data (${this.id})<-${dataConnection.peer}`);
+        Log.debug(`AAAAA data (${this.id})<-${dataConnection.peer} ` +
+          `data=${data}`);
         this.handleData(dataConnection.peer, data);
       });
     });
@@ -62,7 +63,7 @@ export class PeerGroup {
       setTimeout(() => { this.conn.reconnect() }, 5000);
     });
 
-    this.addCallback('meet', (peerId: string) => {
+    this.addCallback('meet', (fromId: string, peerId: string) => {
       if (!this.peers.has(peerId)) {
         if (peerId === this.id) {
           throw new Error("Meet myself!?");
@@ -114,10 +115,10 @@ export class PeerGroup {
     }
   }
 
-  private async handleData(from: string, data: string) {
-    Log.debug(`AAAAA (${this.id}): 13 ${data}`);
-    if (!this.peers.has(from)) {
-      this.conn.connect(from);
+  private async handleData(fromId: string, data: string) {
+    Log.debug(`AAAAA (${this.id}): handleData(${fromId}, ${data})`);
+    if (!this.peers.has(fromId)) {
+      this.conn.connect(fromId);
     }
     const match = data.match(/^([^:]+):(.*)$/);
     if (match) {
@@ -127,7 +128,7 @@ export class PeerGroup {
       if (this.namedCallbacks.has(name)) {
         const fn = this.namedCallbacks.get(name);
         Log.debug(`AAAAA callback (${this.id}) ${name}(${message})`);
-        fn(message);
+        fn(fromId, message);
         return;
       }
     }

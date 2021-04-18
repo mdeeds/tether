@@ -13,20 +13,20 @@ class SubChannel implements CommChannelInterface {
   }
 
   addListener(callback: MessageCallback): void {
-    this.baseChannel.addListener((message: string) => {
+    this.baseChannel.addListener((fromId: string, message: string) => {
       const kvMatch = message.match(/([^:]+):(.*)/);
       if (kvMatch && kvMatch[1] === this.channelName) {
-        callback(kvMatch[2]);
+        callback(fromId, kvMatch[2]);
       } else {
       }
     });
   }
 
   addReply(callback: AskCallback): void {
-    this.baseChannel.addReply((message: string) => {
+    this.baseChannel.addReply((fromId: string, message: string) => {
       const kvMatch = message.match(/([^:]+):(.*)/);
       if (kvMatch && kvMatch[1] === this.channelName) {
-        return callback(kvMatch[2]);
+        return callback(fromId, kvMatch[2]);
       } else return new Promise((resolve, reject) => {
         reject(`I am ${this.channelName}, not ${kvMatch[1]}`);
       });

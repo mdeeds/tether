@@ -13,7 +13,7 @@ async function testJoin() {
   const hostGroup = await PeerGroup.make(host);
   console.log(`Host: ${host.id}`);
   let hostBuffer: string[] = [];
-  hostGroup.addCallback('A', (data: string) => {
+  hostGroup.addCallback('A', (fromId: string, data: string) => {
     hostBuffer.push(data);
   })
 
@@ -28,7 +28,7 @@ async function testJoin() {
     const clientGroup = await PeerGroup.make(client, host.id);
     console.log(`AAAAA index:1`);
     console.log(`Client: ${client.id}`);
-    clientGroup.addCallback('A', (data: string) => {
+    clientGroup.addCallback('A', (fromId: string, data: string) => {
       clientBuffers[i].push(data);
     });
     clientGroups.push(clientGroup);

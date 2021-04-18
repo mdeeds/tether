@@ -1,5 +1,5 @@
-export type MessageCallback = (message: string) => void;
-export type AskCallback = (message: string) => Promise<string>;
+export type MessageCallback = (fromId: string, message: string) => void;
+export type AskCallback = (fromId: string, message: string) => Promise<string>;
 
 export interface CommChannelInterface {
   /**

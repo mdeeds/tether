@@ -11,22 +11,22 @@ export class CommChannel implements CommChannelInterface {
 
   private constructor(peerGroup: PeerGroup) {
     this.peerGroup = peerGroup;
-    this.peerGroup.addCallback('answer', (data: string) => {
+    this.peerGroup.addCallback('answer', (fromId: string, data: string) => {
       const match = data.match(/([0-9]+):(.*)/);
       if (match) {
         const askId = match[1];
         if (this.askCallbacks.has(askId)) {
-          this.askCallbacks.get(askId)(match[2]);
+          this.askCallbacks.get(askId)(fromId, match[2]);
           this.askCallbacks.delete(askId);
         }
       }
     });
-    this.peerGroup.addCallback('ask', async (data: string) => {
+    this.peerGroup.addCallback('ask', async (fromId: string, data: string) => {
       const match = data.match(/([0-9]+):(.*)/);
       if (match) {
         for (const cb of this.replyCallbacks) {
           try {
-            const answer = await cb(match[2]);
+            const answer = await cb(fromId, match[2]);
             const id = match[1];
             this.peerGroup.send('????', `answer:${id}:${answer}`);
             break;
@@ -72,7 +72,12 @@ export class CommChannel implements CommChannelInterface {
     ++CommChannel.askId;
     this.peerGroup.send(to, `ask:${askId}:${message}`);
     return new Promise((resolve, reject) => {
-      this.askCallbacks.set(`${askId}`, resolve as AskCallback);
+      this.askCallbacks.set(`${askId}`,
+        (fromId: string, answer: string) => {
+          return new Promise((resolve, reject) => {
+            resolve(answer);
+          });
+        });
     });
   }
 }
