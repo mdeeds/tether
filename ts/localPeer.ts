@@ -1,4 +1,3 @@
-import { threadId } from "worker_threads";
 import { DataConnectionInterface, PeerInterface } from "./peerInterface";
 
 type DataCallbackFn = (data: string) => void;

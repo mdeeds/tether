@@ -46,6 +46,13 @@ async function testJoin() {
   await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
   console.log(JSON.stringify(hostBuffer));
   console.log(JSON.stringify(clientBuffers));
+
+  console.assert(hostBuffer.indexOf("0") >= 0);
+  console.assert(hostBuffer.indexOf("1") >= 0);
+  console.assert(clientBuffers[0].indexOf("host") >= 0);
+  console.assert(clientBuffers[0].indexOf("1") >= 0);
+  console.assert(clientBuffers[1].indexOf("host") >= 0);
+  console.assert(clientBuffers[1].indexOf("0") >= 0);
 }
 
 async function go() {

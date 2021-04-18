@@ -1,3 +1,4 @@
+import { Log } from "./log";
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 
 type NamedCallbackFn = (data: string) => void;
@@ -25,7 +26,7 @@ export class PeerGroup {
     this.conn = conn;
     this.conn.on('open', async (id: string) => {
       this.id = id;
-      console.log(`AAAAA open (${this.id})`);
+      Log.debug(`AAAAA open (${this.id})`);
       if (joinId) {
         const peerConnection = this.conn.connect(joinId);
         this.peers.set(peerConnection.peer, peerConnection);
@@ -37,7 +38,7 @@ export class PeerGroup {
     });
 
     this.conn.on('connection', (dataConnection: DataConnectionInterface) => {
-      console.log(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
+      Log.debug(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
       if (dataConnection.peer === this.id) {
         throw new Error('Self connection.  HOW?');
       }
@@ -52,12 +53,12 @@ export class PeerGroup {
         this.peers.set(peerConnection.peer, peerConnection);
       }
       dataConnection.on('data', (data: string) => {
-        console.log(`AAAAA data (${this.id})<-${dataConnection.peer}`);
+        Log.debug(`AAAAA data (${this.id})<-${dataConnection.peer}`);
         this.handleData(dataConnection.peer, data);
       });
     });
     this.conn.on('disconnected', () => {
-      console.log(`AAAAA disconnected (${this.id})`);
+      Log.debug(`AAAAA disconnected (${this.id})`);
       setTimeout(() => { this.conn.reconnect() }, 5000);
     });
 
@@ -73,18 +74,18 @@ export class PeerGroup {
   }
 
   broadcast(message: string) {
-    console.log(`AAAAA broadcast (${this.id}) '${message}'`);
+    Log.debug(`AAAAA broadcast (${this.id}) '${message}'`);
     for (const [id, conn] of this.peers.entries()) {
       if (id === this.id) {
         throw new Error("I know myself already.");
       }
       if (conn.open) {
-        console.log(`AAAAA send (${this.id}) '${message}'`);
+        Log.debug(`AAAAA send (${this.id}) '${message}'`);
         conn.send(message);
       } else {
-        console.log(`AAAAA wait for open (${this.id})`);
+        Log.debug(`AAAAA wait for open (${this.id})`);
         conn.on('open', () => {
-          console.log(`AAAAA open-send (${this.id}) '${message}'`);
+          Log.debug(`AAAAA open-send (${this.id}) '${message}'`);
           conn.send(message);
         })
       }
@@ -92,7 +93,7 @@ export class PeerGroup {
   }
 
   addCallback(name: string, f: NamedCallbackFn) {
-    console.log(`AAAAA addCallback (${this.id}) '${name}'`);
+    Log.debug(`AAAAA addCallback (${this.id}) '${name}'`);
     this.namedCallbacks.set(name, f);
   }
 
@@ -107,7 +108,7 @@ export class PeerGroup {
   }
 
   private async handleData(from: string, data: string) {
-    console.log(`AAAAA (${this.id}): 13 ${data}`);
+    Log.debug(`AAAAA (${this.id}): 13 ${data}`);
     if (!this.peers.has(from)) {
       this.conn.connect(from);
     }
@@ -115,10 +116,10 @@ export class PeerGroup {
     if (match) {
       const name = match[1];
       const message = match[2];
-      console.log(`AAAAA: callback (${this.id}) '${name}'`);
+      Log.debug(`AAAAA: callback (${this.id}) '${name}'`);
       if (this.namedCallbacks.has(name)) {
         const fn = this.namedCallbacks.get(name);
-        console.log(`AAAAA callback (${this.id}) ${name}(${message})`);
+        Log.debug(`AAAAA callback (${this.id}) ${name}(${message})`);
         fn(message);
         return;
       }
