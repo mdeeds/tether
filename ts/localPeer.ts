@@ -1,3 +1,4 @@
+import { threadId } from "worker_threads";
 import { DataConnectionInterface, PeerInterface } from "./peerInterface";
 
 type DataCallbackFn = (data: string) => void;
@@ -29,7 +30,6 @@ class LocalDataConnection implements DataConnectionInterface {
   }
 
   private runOpen() {
-    console.log(`AAAAA: 8`);
     this.open = true;
     for (const cb of this.openCallbacks) {
       cb();
@@ -37,17 +37,30 @@ class LocalDataConnection implements DataConnectionInterface {
   }
 
   send(message: string) {
-    console.log(`AAAAA: 11`);
     for (const cb of this.dataCallbacks) {
-      console.log(`AAAAA: 12`);
       cb(message);
     }
+  }
+}
+
+class LocalDataConnnectionPair {
+  readonly source: DataConnectionInterface;
+  readonly target: DataConnectionInterface;
+  constructor(sourceId: string, targetId: string) {
+    this.source = new LocalDataConnection(sourceId);
+    this.target = new LocalDataConnection(targetId);
+    this.source.on('data', (message: string) => { this.target.send(message); });
   }
 }
 
 type ConnectionCallbackFn = (dataConnection: DataConnectionInterface) => void;
 type OpenCallbackFn = (id: string) => void;
 export class LocalPeer implements PeerInterface {
+
+  private static allPeers: Map<string, LocalPeer> =
+    new Map<string, LocalPeer>();
+
+
   id: string = `id${Math.random()}`
 
   private connectionCallbacks: ConnectionCallbackFn[] = [];
@@ -55,9 +68,8 @@ export class LocalPeer implements PeerInterface {
 
   constructor() {
     setTimeout(() => {
-      console.log(`AAAAA: 9`);
+      LocalPeer.allPeers.set(this.id, this);
       for (const cb of this.openCallbacks) {
-        console.log(`AAAAA: 10`);
         cb(this.id);
       }
     })
@@ -84,9 +96,16 @@ export class LocalPeer implements PeerInterface {
   }
 
   connect(to: string) {
-    const thatConnection = new LocalDataConnection(to);
-    // TODO the peer on the other side of thatConnection needs
-    // to get a connection event raised with this id.
-    return thatConnection;
+    const connectionPair = new LocalDataConnnectionPair(to, this.id);
+
+    if (!LocalPeer.allPeers.has(to)) {
+      throw new Error(`Unknown peer: ${to}`);
+    }
+    for (const connectionCallback of
+      LocalPeer.allPeers.get(to).connectionCallbacks) {
+      setTimeout(() => { connectionCallback(connectionPair.target); }, 0);
+      // TODO: doesn't this need to be a property of this?
+    }
+    return connectionPair.source;
   }
 }

@@ -1,7 +1,6 @@
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 
 type NamedCallbackFn = (data: string) => void;
-type DebugCallbackFn = (ev: string, id: string, message: string) => void;
 
 export class PeerGroup {
   static make(conn: PeerInterface, joinId: string = null)
@@ -15,8 +14,8 @@ export class PeerGroup {
   }
 
   private conn: PeerInterface;
-  private peers
-    : Map<string, DataConnectionInterface> = new Map<string, DataConnectionInterface>();
+  private peers: Map<string, DataConnectionInterface> =
+    new Map<string, DataConnectionInterface>();
   private id: string = null;
   private readyCallback: Function[] = [];
   private namedCallbacks: Map<string, NamedCallbackFn> =
@@ -39,6 +38,9 @@ export class PeerGroup {
 
     this.conn.on('connection', (dataConnection: DataConnectionInterface) => {
       console.log(`AAAAA connection (${this.id})<-(${dataConnection.peer})`);
+      if (dataConnection.peer === this.id) {
+        throw new Error('Self connection.  HOW?');
+      }
       if (!this.peers.has(dataConnection.peer)) {
         this.broadcast(`meet:${dataConnection.peer}`);
         // dataConnection is an inbound conneciton.  We need to establish
@@ -61,6 +63,9 @@ export class PeerGroup {
 
     this.addCallback('meet', (peerId: string) => {
       if (!this.peers.has(peerId)) {
+        if (peerId === this.id) {
+          throw new Error("Meet myself!?");
+        }
         const peerConnection = this.conn.connect(peerId);
         this.peers.set(peerId, peerConnection);
       }
