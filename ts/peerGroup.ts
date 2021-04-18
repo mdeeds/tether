@@ -92,6 +92,13 @@ export class PeerGroup {
     }
   }
 
+  send(toId: string, message: string) {
+    if (!this.peers.has(toId)) {
+      throw new Error(`Unknown target: ${toId}`);
+    }
+    this.peers.get(toId).send(message);
+  }
+
   addCallback(name: string, f: NamedCallbackFn) {
     Log.debug(`AAAAA addCallback (${this.id}) '${name}'`);
     this.namedCallbacks.set(name, f);
