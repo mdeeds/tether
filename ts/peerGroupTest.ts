@@ -36,14 +36,14 @@ async function testJoin() {
   }
 
   console.log('============== pause ================');
-  await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
   for (let i = 0; i < clientGroups.length; ++i) {
     clientGroups[i].broadcast(`A:${i}`);
   }
   hostGroup.broadcast('A:host');
 
   console.log('============== pause ================');
-  await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
   console.log(JSON.stringify(hostBuffer));
   console.log(JSON.stringify(clientBuffers));
 

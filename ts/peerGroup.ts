@@ -1,9 +1,8 @@
 import { Log } from "./log";
+import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 
-type NamedCallbackFn = (fromId: string, data: string) => void;
-
-export class PeerGroup {
+export class PeerGroup implements PeerGroupInterface {
   static make(conn: PeerInterface, joinId: string = null)
     : Promise<PeerGroup> {
     return new Promise((resolve, reject) => {
@@ -19,8 +18,9 @@ export class PeerGroup {
     new Map<string, DataConnectionInterface>();
   private id: string = null;
   private readyCallback: Function[] = [];
-  private namedCallbacks: Map<string, NamedCallbackFn> =
-    new Map<string, NamedCallbackFn>();
+  private namedCallbacks: Map<string, CallbackFn> =
+    new Map<string, CallbackFn>();
+  private anonymousCallbacks: CallbackFn[] = [];
 
   private constructor(joinId: string = null, conn: PeerInterface) {
     this.conn = conn;
@@ -100,9 +100,16 @@ export class PeerGroup {
     this.peers.get(toId).send(message);
   }
 
-  addCallback(name: string, f: NamedCallbackFn) {
+  addCallback(name: string, f: CallbackFn) {
     Log.debug(`AAAAA addCallback (${this.id}) '${name}'`);
     this.namedCallbacks.set(name, f);
+  }
+
+  addListener(f: CallbackFn) {
+    if (this.anonymousCallbacks.length > 0) {
+      throw new Error("Why do we have multiple listeners?");
+    }
+    this.anonymousCallbacks.push(f);
   }
 
   getId(): Promise<string> {
@@ -131,6 +138,10 @@ export class PeerGroup {
         fn(fromId, message);
         return;
       }
+    }
+    Log.debug(`AAAAA: no named callback for '${data}'`)
+    for (const cb of this.anonymousCallbacks) {
+      cb(fromId, data);
     }
   }
 }
