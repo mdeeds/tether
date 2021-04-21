@@ -1,5 +1,6 @@
 import { LocalPeer } from "./localPeer";
 import { PeerGroup } from "./peerGroup";
+import { PeerGroupMux } from "./peerGroupMux";
 
 async function testInstantiate() {
   console.log('testInstantiate');
@@ -55,9 +56,36 @@ async function testJoin() {
   console.assert(clientBuffers[1].indexOf("0") >= 0);
 }
 
+async function testAsk() {
+  console.log('testAsk2');
+  const host = new LocalPeer();
+  const hostGroup = await PeerGroup.make(host);
+  hostGroup.addAnswer('foo', (id, m) => { return `foo${m}` });
+
+  const client = new LocalPeer();
+  const clientGroup = await PeerGroup.make(client, host.id);
+
+  console.log('============== pause ===============');
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
+  console.log('====================================');
+
+  const response = await clientGroup.ask(host.id, 'foo:bar');
+
+  console.log('============== pause ===============');
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
+  console.log('====================================');
+
+  console.log(`Response: '${response}'`);
+  // console.assert(response === 'foobar');
+
+  return new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
+}
+
+
 async function go() {
   // await testInstantiate();
-  await testJoin();
+  // await testJoin();
+  await testAsk();
 }
 
 go();

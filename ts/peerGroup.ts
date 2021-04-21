@@ -1,6 +1,10 @@
 import { Log } from "./log";
 import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
+import { PeerGroupMux } from "./peerGroupMux";
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
+
+export type AnswerCallbackFn = (fromId: string, message: string) => string;
+export type AnswerRecieverFn = (answer: string) => void;
 
 export class PeerGroup implements PeerGroupInterface {
   static make(conn: PeerInterface, joinId: string = null)
@@ -21,6 +25,11 @@ export class PeerGroup implements PeerGroupInterface {
   private namedCallbacks: Map<string, CallbackFn> =
     new Map<string, CallbackFn>();
   private anonymousCallbacks: CallbackFn[] = [];
+
+  private answerCallbacks: Map<string, AnswerCallbackFn> =
+    new Map<string, AnswerCallbackFn>();
+  private replyCallbacks: Map<string, AnswerRecieverFn> =
+    new Map<string, AnswerRecieverFn>();
 
   private constructor(joinId: string = null, conn: PeerInterface) {
     this.conn = conn;
@@ -72,6 +81,30 @@ export class PeerGroup implements PeerGroupInterface {
         this.peers.set(peerId, peerConnection);
       }
     });
+
+    this.addCallback('answer', async (fromId: string, data: string) => {
+      const match = data.match(/([0-9]+):(.*)/);
+      if (match) {
+        const askId = match[1];
+        if (this.replyCallbacks.has(askId)) {
+          this.replyCallbacks.get(askId)(data);
+        } else {
+          throw new Error(`Did not ask for ${askId}`)
+        }
+      }
+    });
+    this.addCallback('ask', async (fromId: string, data: string) => {
+      const match = data.match(/([0-9]+):([^:]+):(.*)/);
+      if (match) {
+        const id = match[1];
+        const name = match[2];
+        if (!this.answerCallbacks.has(name)) {
+          throw new Error(`Can't answer ${name}`);
+        }
+        const answer = this.answerCallbacks.get(name)(fromId, match[3]);
+        this.send(fromId, `answer:${id}:${answer}`);
+      }
+    });
   }
 
   broadcast(message: string) {
@@ -98,6 +131,20 @@ export class PeerGroup implements PeerGroupInterface {
       throw new Error(`Unknown target: ${toId}`);
     }
     this.peers.get(toId).send(message);
+  }
+
+  static askNumber = 0;
+  ask(toId: string, message: string): Promise<string> {
+    const askNumber = PeerGroup.askNumber;
+    ++PeerGroup.askNumber;
+    return new Promise((resolve, reject) => {
+      this.replyCallbacks.set(`${askNumber}`, resolve as AnswerRecieverFn);
+      this.send(toId, `ask:${askNumber}:${message}`);
+    });
+  }
+
+  addAnswer(name: string, f: AnswerCallbackFn) {
+    this.answerCallbacks.set(name, f);
   }
 
   addCallback(name: string, f: CallbackFn) {
