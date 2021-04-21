@@ -1,3 +1,5 @@
+import { AnswerCallbackFn } from "./peerGroup";
+
 export type CallbackFn = (fromId: string, data: string) => void;
 
 export interface PeerGroupInterface {
@@ -31,4 +33,20 @@ export interface PeerGroupInterface {
    * Underlying ID of data conneciton.
    */
   getId(): Promise<string>;
+
+  /**
+   * 
+   * @param toId Intended recipient
+   * @param message Message to send
+   * @returns Promise of an answer to this ask.
+   */
+  ask(toId: string, message: string): Promise<string>;
+
+  /**
+   * 
+   * @param name Answer to asks prefixed with this name
+   * @param f Callback function which returns associated answer.
+   */
+  addAnswer(name: string, f: AnswerCallbackFn): void;
+
 }

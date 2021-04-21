@@ -87,7 +87,7 @@ export class PeerGroup implements PeerGroupInterface {
       if (match) {
         const askId = match[1];
         if (this.replyCallbacks.has(askId)) {
-          this.replyCallbacks.get(askId)(data);
+          this.replyCallbacks.get(askId)(match[2]);
         } else {
           throw new Error(`Did not ask for ${askId}`)
         }
@@ -143,7 +143,7 @@ export class PeerGroup implements PeerGroupInterface {
     });
   }
 
-  addAnswer(name: string, f: AnswerCallbackFn) {
+  addAnswer(name: string, f: AnswerCallbackFn): void {
     this.answerCallbacks.set(name, f);
   }
 

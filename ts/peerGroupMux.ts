@@ -1,3 +1,4 @@
+import { AnswerCallbackFn } from "./peerGroup";
 import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 class PeerGroupChannel implements PeerGroupInterface {
@@ -71,6 +72,25 @@ class PeerGroupChannel implements PeerGroupInterface {
    */
   getId(): Promise<string> {
     return this.base.getId();
+  }
+
+  /**
+ * 
+ * @param toId Intended recipient
+ * @param message Message to send
+ * @returns Promise of an answer to this ask.
+ */
+  ask(toId: string, message: string): Promise<string> {
+    return this.base.ask(toId, `${this.channelName}@${message}`);
+  }
+
+  /**
+   * 
+   * @param name Answer to asks prefixed with this name
+   * @param f Callback function which returns associated answer.
+   */
+  addAnswer(name: string, f: AnswerCallbackFn): void {
+    this.base.addAnswer(`${this.channelName}@${name}`, f);
   }
 }
 

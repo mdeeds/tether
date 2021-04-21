@@ -1,5 +1,6 @@
 import { LocalPeer } from "./localPeer";
 import { PeerGroup } from "./peerGroup";
+import { PeerGroupInterface } from "./peerGroupInterface";
 import { PeerGroupMux } from "./peerGroupMux";
 
 async function testInstantiate() {
@@ -57,13 +58,13 @@ async function testJoin() {
 }
 
 async function testAsk() {
-  console.log('testAsk2');
+  console.log('testAsk');
   const host = new LocalPeer();
-  const hostGroup = await PeerGroup.make(host);
+  const hostGroup: PeerGroupInterface = await PeerGroup.make(host);
   hostGroup.addAnswer('foo', (id, m) => { return `foo${m}` });
 
   const client = new LocalPeer();
-  const clientGroup = await PeerGroup.make(client, host.id);
+  const clientGroup: PeerGroupInterface = await PeerGroup.make(client, host.id);
 
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
@@ -76,16 +77,58 @@ async function testAsk() {
   console.log('====================================');
 
   console.log(`Response: '${response}'`);
-  // console.assert(response === 'foobar');
+  console.assert(response === 'foobar', 'expected: foobar');
 
   return new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
 }
 
+async function testAskMux() {
+  console.log('testAskMux');
+  const host = new LocalPeer();
+  const hostMux: PeerGroupMux = new PeerGroupMux(await PeerGroup.make(host));
+  const client = new LocalPeer();
+  const clientMux: PeerGroupMux =
+    new PeerGroupMux(await PeerGroup.make(client, host.id));
+
+  const channelNames = ['A', 'Two', '3'];
+
+  console.log('============== pause ===============');
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
+  console.log('====================================');
+
+  const hostGroups: Map<string, PeerGroupInterface> =
+    new Map<string, PeerGroupInterface>();
+  const clientGroups: Map<string, PeerGroupInterface> =
+    new Map<string, PeerGroupInterface>();
+
+  for (const channelName of channelNames) {
+    const hostGroup: PeerGroupInterface = hostMux.get(channelName);
+    hostGroup.addAnswer('foo', (id, m) => { return `${channelName}+${m}` });
+    hostGroups.set(channelName, hostGroup);
+
+    const client = new LocalPeer();
+    const clientGroup: PeerGroupInterface = clientMux.get(channelName);
+    clientGroups.set(channelName, clientGroup);
+  }
+
+  console.log('============== pause ===============');
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
+  console.log('====================================');
+
+  for (const channelName of channelNames) {
+    const clientGroup = clientGroups.get(channelName);
+    const response = await clientGroup.ask(host.id, 'foo:bar');
+    const expected = `${channelName}+bar`;
+    console.log(`Response: '${response}'`);
+    console.assert(response === expected, `expected: ${expected}`);
+  }
+}
 
 async function go() {
-  // await testInstantiate();
-  // await testJoin();
+  await testInstantiate();
+  await testJoin();
   await testAsk();
+  await testAskMux();
 }
 
 go();
