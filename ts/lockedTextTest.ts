@@ -1,14 +1,14 @@
-import { CommChannel } from "./commChannel";
-import { CommChannelInterface } from "./commChannelInterface";
 import { LocalPeer } from "./localPeer";
 import { LockedText } from "./lockedText";
+import { PeerGroup } from "./peerGroup";
+import { PeerGroupInterface } from "./peerGroupInterface";
 import { PeerInterface } from "./peerInterface";
 
 async function TestUpdateText() {
-  console.log('TestUpdateText');
+  console.log('##### TestUpdateText #####');
   const peer: PeerInterface = new LocalPeer();
-  const comms: CommChannelInterface = await CommChannel.make(peer, null);
-  const text = new LockedText('ID1', comms);
+  const peerGroup: PeerGroupInterface = await PeerGroup.make(peer, null);
+  const text = new LockedText('ID1', peerGroup);
 
   text.takeLock();
   text.update('AAAA');
@@ -18,12 +18,12 @@ async function TestUpdateText() {
 }
 
 async function TestUpdateTextAB() {
-  console.log('TestUpdateTextAB');
+  console.log('##### TestUpdateTextAB #####');
   const peerA: PeerInterface = new LocalPeer();
-  const commsA: CommChannelInterface = await CommChannel.make(peerA, null);
+  const commsA: PeerGroupInterface = await PeerGroup.make(peerA, null);
 
   const peerB: PeerInterface = new LocalPeer();
-  const commsB: CommChannelInterface = await CommChannel.make(peerB, null);
+  const commsB: PeerGroupInterface = await PeerGroup.make(peerB, peerA.id);
 
   // Imagine that textA is on one machine and textB is on another.
   // They are both views on the same underlying text.
@@ -34,10 +34,10 @@ async function TestUpdateTextAB() {
   await new Promise((resolve, reject) => { setTimeout(resolve, 10); });
 
   textA.update('AAAA');
-  await new Promise((resolve, reject) => { setTimeout(resolve, 10); });
+  await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
 
   console.assert(textA.get() === 'AAAA', 1);
-  console.assert(textB.get() === 'AAAA', 2);
+  console.assert(textB.get() === 'AAAA', `2: Actually ${textB.get()}`);
 
   await textB.takeLock();
   await new Promise((resolve, reject) => { setTimeout(resolve, 10); });
@@ -49,10 +49,8 @@ async function TestUpdateTextAB() {
   console.assert(textB.get() === 'BBBB', `4: Actually ${textB.get()}`);
 }
 
-
-
 async function go() {
-  // await TestUpdateText();
+  await TestUpdateText();
   await TestUpdateTextAB();
 }
 
