@@ -18,7 +18,7 @@ class PeerGroupChannel implements PeerGroupInterface {
   }
 
   private handleData(fromId: string, data: string) {
-    const match = data.match(/^([^:]+):(.*)$/);
+    const match = data.match(/([^:]+):([\s\S]*)/m);
     if (match) {
       const name = match[1];
       const message = match[2];

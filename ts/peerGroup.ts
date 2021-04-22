@@ -1,7 +1,8 @@
 import { Log } from "./log";
 import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
-import { PeerGroupMux } from "./peerGroupMux";
+
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
+import { Wire } from "./wire";
 
 export type AnswerCallbackFn = (fromId: string, message: string) => string;
 export type AnswerRecieverFn = (answer: string) => void;
@@ -61,7 +62,8 @@ export class PeerGroup implements PeerGroupInterface {
         }
         this.peers.set(peerConnection.peer, peerConnection);
       }
-      dataConnection.on('data', (data: string) => {
+      dataConnection.on('data', (encoded: string) => {
+        const data = Wire.decode(encoded);
         Log.debug(`AAAAA data (${this.id})<-${dataConnection.peer} ` +
           `data=${data}`);
         this.handleData(dataConnection.peer, data);
@@ -83,7 +85,7 @@ export class PeerGroup implements PeerGroupInterface {
     });
 
     this.addCallback('answer', async (fromId: string, data: string) => {
-      const match = data.match(/([0-9]+):(.*)/);
+      const match = data.match(/([0-9]+):([\s\S]*)/m);
       if (match) {
         const askId = match[1];
         if (this.replyCallbacks.has(askId)) {
@@ -93,9 +95,10 @@ export class PeerGroup implements PeerGroupInterface {
         }
       }
     });
+
     this.addCallback('ask', async (fromId: string, data: string) => {
       Log.debug(`(${this.id}) inside ask callback.`)
-      const match = data.match(/([0-9]+):([^:]+):(.*)/);
+      const match = data.match(/([0-9]+):([^:]+):([\s\S]*)/m);
       if (match) {
         const id = match[1];
         const name = match[2];
@@ -112,18 +115,19 @@ export class PeerGroup implements PeerGroupInterface {
 
   broadcast(message: string) {
     Log.debug(`AAAAA broadcast (${this.id}) '${message}'`);
+    const encoded = Wire.encode(message);
     for (const [id, conn] of this.peers.entries()) {
       if (id === this.id) {
         throw new Error("I know myself already.");
       }
       if (conn.open) {
         Log.debug(`AAAAA send (${this.id}) '${message}'`);
-        conn.send(message);
+        conn.send(encoded);
       } else {
         Log.debug(`AAAAA wait for open (${this.id})`);
         conn.on('open', () => {
           Log.debug(`AAAAA open-send (${this.id}) '${message}'`);
-          conn.send(message);
+          conn.send(encoded);
         })
       }
     }
@@ -133,7 +137,8 @@ export class PeerGroup implements PeerGroupInterface {
     if (!this.peers.has(toId)) {
       throw new Error(`Unknown target: ${toId}`);
     }
-    this.peers.get(toId).send(message);
+    const encoded = Wire.encode(message);
+    this.peers.get(toId).send(encoded);
   }
 
   static askNumber = 0;
@@ -177,7 +182,7 @@ export class PeerGroup implements PeerGroupInterface {
     if (!this.peers.has(fromId)) {
       this.conn.connect(fromId);
     }
-    const match = data.match(/^([^:]+):(.*)$/);
+    const match = data.match(/([^:]+):([\s\S]*)/m);
     if (match) {
       const name = match[1];
       const message = match[2];

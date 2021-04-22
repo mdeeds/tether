@@ -23,18 +23,18 @@ async function test() {
       body.appendChild(this.div);
 
       this.div.addEventListener('keyup', async (ev: KeyboardEvent) => {
-        if (this.lastContent != this.div.textContent) {
+        if (this.lastContent != this.div.innerText) {
           if (!this.lockedText.hasLock()) {
-            this.div.textContent =
+            this.div.innerText =
               await this.lockedText.takeLock();
           } else {
-            this.lockedText.update(this.div.textContent);
+            this.lockedText.update(this.div.innerText);
           }
         }
       });
 
       this.lockedText.addUpdateCallback((text: string) => {
-        this.div.textContent = text;
+        this.div.innerText = text;
       });
     }
   }

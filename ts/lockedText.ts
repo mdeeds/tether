@@ -7,7 +7,7 @@ export class LockedText {
   readonly myId: string;
   private readonly peerGroup: PeerGroupInterface;
   private currentOwnerId: string = null;
-  private text: string;
+  private text: string = "";
   private updateCallbacks: UpdateCallbackFn[] = [];
 
   constructor(myId: string, comms: PeerGroupInterface) {
