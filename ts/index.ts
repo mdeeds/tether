@@ -1,48 +1,51 @@
 import Peer from "peerjs";
+import { LockedText } from "./lockedText";
 import { PeerGroup } from "./peerGroup";
+import { PeerGroupInterface } from "./peerGroupInterface";
 
 const body = document.getElementsByTagName('body')[0];
 
 const url = new URL(document.URL);
 
 async function test() {
+  class Box {
+    private peerGroup: PeerGroupInterface;
+    private lockedText: LockedText;
+    private div: HTMLDivElement;
+    private lastContent: string;
+    constructor(id: string, peerGroup: PeerGroupInterface) {
+      this.peerGroup = peerGroup;
+      this.lockedText = new LockedText(id, peerGroup);
+      this.div = document.createElement('div');
+      this.div.classList.add('testBox');
+      this.div.contentEditable = 'true';
+      this.div.spellcheck = false;
+      body.appendChild(this.div);
+
+      this.div.addEventListener('keyup', async (ev: KeyboardEvent) => {
+        if (this.lastContent != this.div.textContent) {
+          if (!this.lockedText.hasLock()) {
+            this.div.textContent =
+              await this.lockedText.takeLock();
+          } else {
+            this.lockedText.update(this.div.textContent);
+          }
+        }
+      });
+
+      this.lockedText.addUpdateCallback((text: string) => {
+        this.div.textContent = text;
+      });
+    }
+  }
+
   const host = new Peer();
   const hostGroup = await PeerGroup.make(host);
-  console.log(`Host: ${host.id}`);
-  let hostBuffer: string[] = [];
-  hostGroup.addCallback('A', (fromId: string, data: string) => {
-    hostBuffer.push(data);
-  })
+  const hostBox = new Box(host.id, hostGroup);
 
-  const clients: Peer[] = [];
-  const clientGroups: PeerGroup[] = [];
-  let clientBuffers: string[][] = [];
-
-  for (let i = 0; i < 2; ++i) {
-    clients.push(new Peer());
-    const client = clients[i];
-    console.log(`AAAAA index:0`);
-    const clientGroup = await PeerGroup.make(client, host.id);
-    console.log(`AAAAA index:1`);
-    console.log(`Client: ${client.id}`);
-    clientGroup.addCallback('A', (fromId: string, data: string) => {
-      clientBuffers[i].push(data);
-    });
-    clientGroups.push(clientGroup);
-    clientBuffers.push([]);
-  }
-
-  console.log('============== pause ================');
-  await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
-  for (let i = 0; i < clientGroups.length; ++i) {
-    clientGroups[i].broadcast(`A:${i}`);
-  }
-  hostGroup.broadcast('A:host');
-
-  console.log('============== pause ================');
-  await new Promise((resolve, reject) => { setTimeout(resolve, 1000); });
-  console.log(JSON.stringify(hostBuffer));
-  console.log(JSON.stringify(clientBuffers));
+  const client = new Peer();
+  const clientGroup = await PeerGroup.make(client, host.id);
+  const clientBox = new Box(client.id, clientGroup);
 }
 
 if (url.searchParams.get('test')) {

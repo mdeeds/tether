@@ -1,58 +1,54 @@
 import { Log } from "./log";
 import { PeerGroupInterface } from "./peerGroupInterface";
 
+export type UpdateCallbackFn = (text: string) => void;
+
 export class LockedText {
   readonly myId: string;
   private readonly peerGroup: PeerGroupInterface;
   private currentOwnerId: string = null;
   private text: string;
+  private updateCallbacks: UpdateCallbackFn[] = [];
+
   constructor(myId: string, comms: PeerGroupInterface) {
     this.myId = myId;
     this.peerGroup = comms;
-    this.peerGroup.addListener(
-      (fromId: string, message: string) => { this.listen(fromId, message); });
-    this.peerGroup.addCallback('take',
+
+    this.peerGroup.addCallback('owner', (fromId: string, message: string) => {
+      this.currentOwnerId = message;
+    });
+
+    this.peerGroup.addCallback('update', (fromId: string, message: string) => {
+      if (this.myId !== this.currentOwnerId) {
+        this.text = message;
+        for (const cb of this.updateCallbacks) {
+          cb(this.text);
+        }
+      }
+    });
+
+    this.peerGroup.addAnswer('take',
       (fromId: string, message: string) => {
         Log.debug(`(${this.myId}) Current: ${this.currentOwnerId}; new: ${fromId}`);
-        return new Promise((resolve, reject) => {
-          this.currentOwnerId = fromId;
-          resolve(this.text);
-        });
+        this.currentOwnerId = fromId;
+        return this.text;
       });
   }
 
-  /**
-   * Broadcast messages:
-   *   owner:${id}
-   *   update:${message}
-   * @param message 
-   */
-  private listen(fromId: string, message: string) {
-    Log.debug(`listen(${message})`);
-    const kvMatch = message.match(/([^:]+):(.*)/);
-    if (!kvMatch) {
-      throw new Error(`Unable to parse: ${message}`);
-    }
-    const value = kvMatch[2];
-    switch (kvMatch[1]) {
-      case 'owner':
-        this.currentOwnerId = value;
-        break;
-
-      case 'update':
-        if (this.myId !== this.currentOwnerId) {
-          this.text = value;
-        } else {
-          throw new Error('Should not talk to oneself.')
-        }
-        break;
-    }
+  addUpdateCallback(f: UpdateCallbackFn) {
+    this.updateCallbacks.push(f);
   }
 
-  async takeLock(): Promise<void> {
+  hasLock(): boolean {
+    return this.currentOwnerId === this.myId;
+  }
+
+  async takeLock(): Promise<string> {
     if (this.currentOwnerId && this.currentOwnerId != this.myId) {
-      Log.debug(`Take from ${this.currentOwnerId}`);
-      const reply = await this.peerGroup.ask(this.currentOwnerId, 'take');
+      Log.debug(`Take issued from ${this.myId} ` +
+        `to ${this.currentOwnerId}`);
+      const reply = await this.peerGroup.ask(this.currentOwnerId, 'take:please');
+      Log.debug(`Take resolved; new value: ${reply}`);
       this.text = reply;
       this.currentOwnerId = this.myId;
     } else {
@@ -61,6 +57,7 @@ export class LockedText {
     }
     Log.debug(`Take new owner: ${this.myId}`);
     this.peerGroup.broadcast(`owner:${this.myId}`);
+    return new Promise((resolve, reject) => { resolve(this.text); });
   }
 
   /** 

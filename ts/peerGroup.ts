@@ -94,6 +94,7 @@ export class PeerGroup implements PeerGroupInterface {
       }
     });
     this.addCallback('ask', async (fromId: string, data: string) => {
+      Log.debug(`(${this.id}) inside ask callback.`)
       const match = data.match(/([0-9]+):([^:]+):(.*)/);
       if (match) {
         const id = match[1];
@@ -103,6 +104,8 @@ export class PeerGroup implements PeerGroupInterface {
         }
         const answer = this.answerCallbacks.get(name)(fromId, match[3]);
         this.send(fromId, `answer:${id}:${answer}`);
+      } else {
+        Log.debug(`(${this.id}) cannot match: ${data}`);
       }
     });
   }
@@ -186,7 +189,8 @@ export class PeerGroup implements PeerGroupInterface {
         return;
       }
     }
-    Log.debug(`AAAAA: no named callback for '${data}'`)
+    Log.debug(`AAAAA: (${this.id}) no named callback for '${data}'; ` +
+      `${this.anonymousCallbacks.length}`)
     for (const cb of this.anonymousCallbacks) {
       cb(fromId, data);
     }
