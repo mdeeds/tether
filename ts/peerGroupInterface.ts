@@ -1,6 +1,6 @@
-import { AnswerCallbackFn } from "./peerGroup";
-
 export type CallbackFn = (fromId: string, data: string) => void;
+export type AnswerCallbackFn = (fromId: string, message: string) => string;
+export type AnswerRecieverFn = (answer: string) => void;
 
 export interface PeerGroupInterface {
   /**

@@ -1,5 +1,4 @@
-import { AnswerCallbackFn } from "./peerGroup";
-import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
+import { AnswerCallbackFn, CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 class PeerGroupChannel implements PeerGroupInterface {
   private channelName: string;
