@@ -13,9 +13,9 @@ async function test() {
     private lockedText: LockedText;
     private div: HTMLDivElement;
     private lastContent: string;
-    constructor(id: string, peerGroup: PeerGroupInterface) {
+    constructor(peerGroup: PeerGroupInterface) {
       this.peerGroup = peerGroup;
-      this.lockedText = new LockedText(id, peerGroup);
+      this.lockedText = new LockedText(peerGroup.getId(), peerGroup);
       this.div = document.createElement('div');
       this.div.classList.add('testBox');
       this.div.contentEditable = 'true';
@@ -41,11 +41,11 @@ async function test() {
 
   const host = new Peer();
   const hostGroup = await PeerGroup.make(host);
-  const hostBox = new Box(host.id, hostGroup);
+  const hostBox = new Box(hostGroup);
 
   const client = new Peer();
   const clientGroup = await PeerGroup.make(client, host.id);
-  const clientBox = new Box(client.id, clientGroup);
+  const clientBox = new Box(clientGroup);
 }
 
 if (url.searchParams.get('test')) {

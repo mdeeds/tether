@@ -70,7 +70,7 @@ class PeerGroupChannel implements PeerGroupInterface {
   /**
    * Underlying ID of data conneciton.
    */
-  getId(): Promise<string> {
+  getId(): string {
     return this.base.getId();
   }
 

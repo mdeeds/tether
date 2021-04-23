@@ -32,7 +32,7 @@ export interface PeerGroupInterface {
   /**
    * Underlying ID of data conneciton.
    */
-  getId(): Promise<string>;
+  getId(): string;
 
   /**
    * 

@@ -12,7 +12,7 @@ export class PeerGroup implements PeerGroupInterface {
     : Promise<PeerGroup> {
     return new Promise((resolve, reject) => {
       const result = new PeerGroup(joinId, conn);
-      result.getId().then(() => {
+      result.getIdInternal().then(() => {
         resolve(result);
       });
     });
@@ -167,13 +167,21 @@ export class PeerGroup implements PeerGroupInterface {
     this.anonymousCallbacks.push(f);
   }
 
-  getId(): Promise<string> {
+  private getIdInternal(): Promise<string> {
     if (this.id) {
       return new Promise((resolve, reject) => { resolve(this.id); });
     } else {
       return new Promise((resolve, reject) => {
         this.readyCallback.push(resolve);
       });
+    }
+  }
+
+  getId(): string {
+    if (this.id) {
+      return this.id;
+    } else {
+      throw new Error("Internal error.");
     }
   }
 
