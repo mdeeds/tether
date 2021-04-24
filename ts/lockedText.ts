@@ -10,9 +10,13 @@ export class LockedText {
   private text: string = "";
   private updateCallbacks: UpdateCallbackFn[] = [];
 
-  constructor(myId: string, comms: PeerGroupInterface) {
-    this.myId = myId;
+  constructor(comms: PeerGroupInterface, initialValue: string = null) {
+    this.myId = comms.getId();
     this.peerGroup = comms;
+    if (initialValue) {
+      this.text = initialValue;
+      this.currentOwnerId = comms.getId();
+    }
 
     this.peerGroup.addCallback('owner', (fromId: string, message: string) => {
       this.currentOwnerId = message;
@@ -40,6 +44,7 @@ export class LockedText {
   }
 
   hasLock(): boolean {
+    Log.debug(`Current owner: ${this.currentOwnerId}; I am ${this.myId}`);
     return this.currentOwnerId === this.myId;
   }
 
@@ -64,12 +69,13 @@ export class LockedText {
    * 
    * @param text New value
    * @returns true if update is successful.  Update will fail if 
-   * client no longer holds the right Secret.
+   * client no longer holds the lock.
    */
   update(text: string): boolean {
     Log.debug(`(${this.myId}) update(${text}) ` +
       `Current: ${this.currentOwnerId}; new: ${this.myId}`);
-    if (this.currentOwnerId === this.myId) {
+    if (this.currentOwnerId === this.myId || this.currentOwnerId === null) {
+      this.currentOwnerId = this.myId;
       this.text = text;
       this.peerGroup.broadcast(`update:${text}`);
       return true;

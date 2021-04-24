@@ -8,7 +8,7 @@ async function TestUpdateText() {
   console.log('##### TestUpdateText #####');
   const peer: PeerInterface = new LocalPeer();
   const peerGroup: PeerGroupInterface = await PeerGroup.make(peer, null);
-  const text = new LockedText('ID1', peerGroup);
+  const text = new LockedText(peerGroup);
 
   text.takeLock();
   text.update('AAAA');
@@ -27,8 +27,8 @@ async function TestUpdateTextAB() {
 
   // Imagine that textA is on one machine and textB is on another.
   // They are both views on the same underlying text.
-  const textA = new LockedText(peerA.id, commsA);
-  const textB = new LockedText(peerB.id, commsB);
+  const textA = new LockedText(commsA);
+  const textB = new LockedText(commsB);
 
   await textA.takeLock();
   await new Promise((resolve, reject) => { setTimeout(resolve, 10); });

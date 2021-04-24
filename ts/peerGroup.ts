@@ -1,11 +1,8 @@
 import { Log } from "./log";
-import { CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
+import { AnswerCallbackFn, AnswerRecieverFn, CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 import { Wire } from "./wire";
-
-export type AnswerCallbackFn = (fromId: string, message: string) => string;
-export type AnswerRecieverFn = (answer: string) => void;
 
 export class PeerGroup implements PeerGroupInterface {
   static make(conn: PeerInterface, joinId: string = null)

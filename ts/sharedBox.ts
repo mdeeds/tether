@@ -7,7 +7,7 @@ export class SharedBox {
   private lastContent: string;
   constructor(peerGroup: PeerGroupInterface,
     container: HTMLDivElement | HTMLBodyElement) {
-    this.lockedText = new LockedText(peerGroup.getId(), peerGroup);
+    this.lockedText = new LockedText(peerGroup);
     this.div = document.createElement('div');
     this.div.classList.add('testBox');
     this.div.contentEditable = 'true';
