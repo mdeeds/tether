@@ -12,7 +12,7 @@ export class Shadow {
     this.div = document.createElement('div');
     this.div.classList.add("shadow");
     this.div.style.setProperty(
-      'filter', `hue-rotate(${this.position.hue}turn)`);
+      'filter', `saturate(100%) hue-rotate(${this.position.hue}turn)`);
     const body = document.getElementsByTagName('body')[0];
     body.appendChild(this.div);
     this.moveTo(position.x, position.y)
@@ -50,11 +50,7 @@ export class Shadow {
     this.div.style.top = `${y - scrollOffset - r + divBB.top}px`;
   }
 
-  updatePosition(position: ShadowPosition) {
-    this.setTab(position.tabId);
-    this.moveTo(position.x, position.y);
-  }
-  getPosition(): ShadowPosition {
-    return this.position;
+  render() {
+    this.moveTo(this.position.x, this.position.y);
   }
 }

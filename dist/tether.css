@@ -41,11 +41,11 @@ body {
 
 .shadow {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: #ff04;
-  box-shadow: #ff0 0 0 5px;
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: #ff02;
+  box-shadow: #ff0 0 0 8px;
+  border-radius: 15px;
   z-index: 0;
   pointer-events: none;
 }
