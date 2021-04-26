@@ -3,7 +3,7 @@ import { PeerGroupInterface } from "./peerGroupInterface";
 
 export class SharedBox {
   private lockedText: LockedText;
-  private div: HTMLDivElement;
+  readonly div: HTMLDivElement;
   private lastContent: string;
   constructor(peerGroup: PeerGroupInterface,
     container: HTMLDivElement | HTMLBodyElement) {

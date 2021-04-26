@@ -30,9 +30,22 @@ body {
   height: 100px;
   margin: 10px;
   padding: 2px;
+  z-index: 1;
+  background-color: transparent;
 }
 
 :focus {
   border: none;
   outline: none;
+}
+
+.shadow {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ff04;
+  box-shadow: #ff0 0 0 5px;
+  border-radius: 10px;
+  z-index: 0;
+  pointer-events: none;
 }
