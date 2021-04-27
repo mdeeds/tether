@@ -61,7 +61,7 @@ export class LockedText {
       this.currentOwnerId = this.myId;
     }
     Log.debug(`Take new owner: ${this.myId}`);
-    this.peerGroup.broadcast(`owner:${this.myId}`);
+    this.peerGroup.broadcast('owner', this.myId);
     return new Promise((resolve, reject) => { resolve(this.text); });
   }
 
@@ -77,7 +77,7 @@ export class LockedText {
     if (this.currentOwnerId === this.myId || this.currentOwnerId === null) {
       this.currentOwnerId = this.myId;
       this.text = text;
-      this.peerGroup.broadcast(`update:${text}`);
+      this.peerGroup.broadcast('update', text);
       return true;
     }
     return false;
@@ -86,5 +86,4 @@ export class LockedText {
   get(): string {
     return this.text;
   }
-
 }

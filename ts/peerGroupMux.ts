@@ -37,7 +37,7 @@ class PeerGroupChannel implements PeerGroupInterface {
    * @param message Message to send to all listeners
    */
   broadcast(message: string): void {
-    this.base.broadcast(`#${this.channelName}#:${message}`);
+    this.base.broadcast(`#${this.channelName}#`, message);
   }
 
   /**

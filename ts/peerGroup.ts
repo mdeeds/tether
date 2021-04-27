@@ -50,7 +50,7 @@ export class PeerGroup implements PeerGroupInterface {
         throw new Error('Self connection.  HOW?');
       }
       if (!this.peers.has(dataConnection.peer)) {
-        this.broadcast(`meet:${dataConnection.peer}`);
+        this.broadcast('meet', dataConnection.peer);
         // dataConnection is an inbound conneciton.  We need to establish
         // a new outbound one.
         const peerConnection = this.conn.connect(dataConnection.peer);
@@ -110,7 +110,8 @@ export class PeerGroup implements PeerGroupInterface {
     });
   }
 
-  broadcast(message: string) {
+  broadcast(name: string, data: string) {
+    const message = `${name}:${data}`;
     Log.debug(`AAAAA broadcast (${this.id}) '${message}'`);
     const encoded = Wire.encode(message);
     for (const [id, conn] of this.peers.entries()) {

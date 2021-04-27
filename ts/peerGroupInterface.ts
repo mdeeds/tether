@@ -7,7 +7,7 @@ export interface PeerGroupInterface {
    * 
    * @param message Message to send to all listeners
    */
-  broadcast(message: string): void;
+  broadcast(name: string, message: string): void;
 
   /**
    * 

@@ -20,7 +20,7 @@ async function zeroChannels() {
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
   console.log('====================================');
-  baseGroup1.broadcast('AAA');
+  baseGroup1.broadcast('A', 'AAA');
 
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
@@ -48,7 +48,7 @@ async function oneChannel() {
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
   console.log('====================================');
-  channelA1.broadcast('AAA');
+  channelA1.broadcast('A', 'AAA');
 
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
@@ -85,8 +85,8 @@ async function twoChannels() {
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });
   console.log('====================================');
 
-  channelA1.broadcast('AAA');
-  channelB1.broadcast('BBB');
+  channelA1.broadcast('A', 'AAA');
+  channelB1.broadcast('B', 'BBB');
 
   console.log('============== pause ===============');
   await new Promise((resolve, reject) => { setTimeout(resolve, 100); });

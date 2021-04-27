@@ -1,13 +1,22 @@
+import { PeerGroupInterface } from "./peerGroupInterface";
 import { ShadowPosition } from "./shadowPosition";
 
 export class Shadow {
   private position: ShadowPosition;
   private div: HTMLDivElement;
   private textArea: HTMLDivElement;
+  private comms: PeerGroupInterface;
 
-  constructor(position: ShadowPosition, container: HTMLDivElement) {
+  constructor(position: ShadowPosition, container: HTMLDivElement,
+    comms: PeerGroupInterface) {
     this.position = position;
     this.textArea = container;
+    this.comms = comms;
+
+    comms.addCallback('position', (fromId: string, data: string) => {
+      const position: ShadowPosition = JSON.parse(data);
+      this.internalMoveTo(position.x, position.y);
+    });
 
     this.div = document.createElement('div');
     this.div.classList.add("shadow");
@@ -40,6 +49,11 @@ export class Shadow {
   }
 
   moveTo(x: number, y: number) {
+    this.internalMoveTo(x, y);
+    this.comms.broadcast('position', JSON.stringify(this.position));
+  }
+
+  private internalMoveTo(x: number, y: number) {
     const scrollOffset = this.textArea.scrollTop;
     this.position.x = x;
     this.position.y = y;
