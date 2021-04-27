@@ -3,6 +3,7 @@ import { LockedText } from "./lockedText";
 import { PeerGroup } from "./peerGroup";
 import { PeerGroupInterface } from "./peerGroupInterface";
 import { PeerGroupMux } from "./peerGroupMux";
+import { Scene } from "./scene";
 import { Shadow } from "./shadow";
 import { SharedBox } from "./sharedBox";
 
@@ -13,25 +14,11 @@ const url = new URL(document.URL);
 async function test() {
   const host = new Peer();
   const hostGroup = await PeerGroup.make(host);
-  const hostMux = new PeerGroupMux(hostGroup);
-  const hostBox = new SharedBox(hostMux.get('A'), body);
-  const hostShadow = new Shadow(
-    { x: 30, y: 30, ownerId: host.id, tabId: 'A', hue: 0.2 }, hostBox.div,
-    hostMux.get('ShadowHost'));
-  hostBox.div.addEventListener('mousemove', (ev: MouseEvent) => {
-    hostShadow.moveToClientXY(ev.clientX, ev.clientY);
-  });
+  const hostScene = new Scene(hostGroup, body);
 
   const client = new Peer();
   const clientGroup = await PeerGroup.make(client, host.id);
-  const clientMux = new PeerGroupMux(clientGroup);
-  const clientBox = new SharedBox(clientMux.get('A'), body);
-  const clientShadow = new Shadow(
-    { x: 30, y: 30, ownerId: client.id, tabId: '', hue: -0.2 }, clientBox.div,
-    clientMux.get('ShadowClient'));
-  clientBox.div.addEventListener('mousemove', (ev: MouseEvent) => {
-    clientShadow.moveToClientXY(ev.clientX, ev.clientY);
-  });
+  const clientScene = new Scene(clientGroup, body);
 }
 
 if (url.searchParams.get('test')) {
