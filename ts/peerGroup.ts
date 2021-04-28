@@ -1,5 +1,5 @@
 import { Log } from "./log";
-import { AnswerCallbackFn, AnswerRecieverFn, CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
+import { AnswerCallbackFn, AnswerRecieverFn, CallbackFn, MeetCallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 import { PeerInterface, DataConnectionInterface } from "./peerInterface";
 import { Wire } from "./wire";
@@ -28,6 +28,7 @@ export class PeerGroup implements PeerGroupInterface {
     new Map<string, AnswerCallbackFn>();
   private replyCallbacks: Map<string, AnswerRecieverFn> =
     new Map<string, AnswerRecieverFn>();
+  private meetCallbacks: MeetCallbackFn[] = [];
 
   private constructor(joinId: string = null, conn: PeerInterface) {
     this.conn = conn;
@@ -78,6 +79,9 @@ export class PeerGroup implements PeerGroupInterface {
         }
         const peerConnection = this.conn.connect(peerId);
         this.peers.set(peerId, peerConnection);
+        for (const f of this.meetCallbacks) {
+          f(peerId);
+        }
       }
     });
 
@@ -108,6 +112,10 @@ export class PeerGroup implements PeerGroupInterface {
         Log.debug(`(${this.id}) cannot match: ${data}`);
       }
     });
+  }
+
+  addMeetCallback(f: MeetCallbackFn) {
+    this.meetCallbacks.push(f);
   }
 
   broadcast(name: string, data: string) {

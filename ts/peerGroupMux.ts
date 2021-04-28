@@ -1,4 +1,4 @@
-import { AnswerCallbackFn, CallbackFn, PeerGroupInterface } from "./peerGroupInterface";
+import { AnswerCallbackFn, CallbackFn, MeetCallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 class PeerGroupChannel implements PeerGroupInterface {
   private channelName: string;
@@ -30,6 +30,10 @@ class PeerGroupChannel implements PeerGroupInterface {
     for (const cb of this.anonymousCallbacks) {
       cb(fromId, data);
     }
+  }
+
+  addMeetCallback(f: MeetCallbackFn) {
+    this.base.addMeetCallback(f);
   }
 
   /**

@@ -1,11 +1,6 @@
 import Peer from "peerjs";
-import { LockedText } from "./lockedText";
 import { PeerGroup } from "./peerGroup";
-import { PeerGroupInterface } from "./peerGroupInterface";
-import { PeerGroupMux } from "./peerGroupMux";
 import { Scene } from "./scene";
-import { Shadow } from "./shadow";
-import { SharedBox } from "./sharedBox";
 
 const body = document.getElementsByTagName('body')[0];
 

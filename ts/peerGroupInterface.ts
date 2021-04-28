@@ -1,6 +1,7 @@
 export type CallbackFn = (fromId: string, data: string) => void;
 export type AnswerCallbackFn = (fromId: string, message: string) => string;
 export type AnswerRecieverFn = (answer: string) => void;
+export type MeetCallbackFn = (newId: String) => void;
 
 export interface PeerGroupInterface {
   /**
@@ -22,6 +23,8 @@ export interface PeerGroupInterface {
    * @param f Callback function
    */
   addCallback(name: string, f: CallbackFn): void;
+
+  addMeetCallback(f: MeetCallbackFn): void;
 
   /**
    * If no named callback matches, these listeners are called.
