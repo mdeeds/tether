@@ -21,7 +21,7 @@ export class Shadow {
     this.div = document.createElement('div');
     this.div.classList.add("shadow");
     this.div.style.setProperty(
-      'filter', `saturate(100%) hue-rotate(${this.position.hue}turn)`);
+      'filter', `saturate(120%) hue-rotate(${this.position.hue}turn)`);
     const body = document.getElementsByTagName('body')[0];
     body.appendChild(this.div);
     this.moveTo(position.x, position.y)

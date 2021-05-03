@@ -1,3 +1,4 @@
+import { Log } from "./log";
 import { AnswerCallbackFn, CallbackFn, MeetCallbackFn, PeerGroupInterface } from "./peerGroupInterface";
 
 class PeerGroupChannel implements PeerGroupInterface {
@@ -40,8 +41,8 @@ class PeerGroupChannel implements PeerGroupInterface {
    * 
    * @param message Message to send to all listeners
    */
-  broadcast(message: string): void {
-    this.base.broadcast(`#${this.channelName}#`, message);
+  broadcast(name: string, message: string): void {
+    this.base.broadcast(`#${this.channelName}#`, `${name}:${message}`);
   }
 
   /**
@@ -84,7 +85,13 @@ class PeerGroupChannel implements PeerGroupInterface {
  * @returns Promise of an answer to this ask.
  */
   ask(toId: string, message: string): Promise<string> {
-    return this.base.ask(toId, `${this.channelName}@${message}`);
+    const match = message.match(/([^:]+):([\s\S]*)/m);
+    if (!match) {
+      throw new Error(`Message must be name:question`);
+    }
+    const name = match[1];
+    const question = match[2];
+    return this.base.ask(toId, `${this.channelName}@${name}:${question}`);
   }
 
   /**

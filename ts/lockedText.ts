@@ -23,6 +23,7 @@ export class LockedText {
     });
 
     this.peerGroup.addCallback('update', (fromId: string, message: string) => {
+      Log.debug(`(${this.myId}) recieved update: ${message}`);
       if (this.myId !== this.currentOwnerId) {
         this.text = message;
         for (const cb of this.updateCallbacks) {
@@ -52,7 +53,8 @@ export class LockedText {
     if (this.currentOwnerId && this.currentOwnerId != this.myId) {
       Log.debug(`Take issued from ${this.myId} ` +
         `to ${this.currentOwnerId}`);
-      const reply = await this.peerGroup.ask(this.currentOwnerId, 'take:please');
+      const reply = await this.peerGroup.ask(
+        this.currentOwnerId, 'take:please');
       Log.debug(`Take resolved; new value: ${reply}`);
       this.text = reply;
       this.currentOwnerId = this.myId;
