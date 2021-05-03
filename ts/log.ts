@@ -15,7 +15,8 @@ export class Log {
 
   static debug(message: any) {
     if (Log.debugging) {
-      console.log(message);
+      console.log(`${(window.performance.now() / 1000).toFixed(2)} ` +
+        `${message} `);
     }
   }
 }

@@ -60,6 +60,7 @@ export class PeerGroup implements PeerGroupInterface {
         }
         this.peers.set(peerConnection.peer, peerConnection);
       }
+      Log.debug(`AAAAA adding data callback for ${this.id}`);
       dataConnection.on('data', (encoded: string) => {
         const data = Wire.decode(encoded);
         Log.debug(`AAAAA data (${this.id})<-${dataConnection.peer} ` +
@@ -140,6 +141,7 @@ export class PeerGroup implements PeerGroupInterface {
   }
 
   send(toId: string, message: string) {
+    Log.debug(`AAAAA send (${this.id})->${toId} ${message}`);
     if (!this.peers.has(toId)) {
       throw new Error(`Unknown target: ${toId}`);
     }
@@ -149,6 +151,7 @@ export class PeerGroup implements PeerGroupInterface {
 
   static askNumber = 0;
   ask(toId: string, message: string): Promise<string> {
+    Log.debug(`AAAAA ask: ${message}`);
     const askNumber = PeerGroup.askNumber;
     ++PeerGroup.askNumber;
     return new Promise((resolve, reject) => {

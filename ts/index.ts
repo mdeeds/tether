@@ -9,11 +9,11 @@ const url = new URL(document.URL);
 async function test() {
   const host = new Peer();
   const hostGroup = await PeerGroup.make(host);
-  const hostScene = new Scene(hostGroup, 'host', body);
+  const hostScene = new Scene(hostGroup, 'KATS', 'host', body);
 
   const client = new Peer();
   const clientGroup = await PeerGroup.make(client, host.id);
-  const clientScene = new Scene(clientGroup, 'client', body);
+  const clientScene = new Scene(clientGroup, 'KATS', 'client', body);
 }
 
 if (url.searchParams.get('test')) {

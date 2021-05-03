@@ -85,6 +85,7 @@ class PeerGroupChannel implements PeerGroupInterface {
  * @returns Promise of an answer to this ask.
  */
   ask(toId: string, message: string): Promise<string> {
+    Log.debug(`AAAAA mux ask: ${message}`)
     const match = message.match(/([^:]+):([\s\S]*)/m);
     if (!match) {
       throw new Error(`Message must be name:question`);
