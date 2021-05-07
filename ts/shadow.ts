@@ -14,8 +14,10 @@ export class Shadow {
     this.comms = comms;
 
     comms.addCallback('position', (fromId: string, data: string) => {
-      const position: ShadowPosition = JSON.parse(data);
-      this.internalMoveTo(position.x, position.y);
+      this.div.style.setProperty(
+        'filter', `saturate(120%) hue-rotate(${this.position.hue}turn)`);
+      Object.assign(this.position, JSON.parse(data));
+      this.internalMoveTo(this.position.x, this.position.y);
     });
 
     this.div = document.createElement('div');

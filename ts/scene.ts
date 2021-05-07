@@ -4,12 +4,14 @@ import { PeerGroupInterface } from "./peerGroupInterface";
 import { PeerGroupMux } from "./peerGroupMux";
 import { SceneInfo } from "./sceneInfo";
 import { Shadow } from "./shadow";
+import { ShadowPosition } from "./shadowPosition";
 import { SharedBox } from "./sharedBox";
 
 export class Scene {
   private mux: PeerGroupMux;
   private box: SharedBox;
   private baseComms: PeerGroupInterface;
+  private otherShadows: Map<string, Shadow> = new Map<string, Shadow>();
 
   // Common name used by all scenes.
   private joinName: string;
@@ -27,6 +29,7 @@ export class Scene {
     this.sceneInfo = new SceneInfo();
     this.sceneInfo.textChannels.push('A');
     const shadowChannel = `Shadow@${sceneName}`;
+    this.otherShadows.set(shadowChannel, null);
     this.sceneInfo.shadowChannels.push(shadowChannel);
 
     this.sceneInfoText.addUpdateCallback((newValue: string) => {
@@ -52,6 +55,12 @@ export class Scene {
   async handleUpdateSceneInfo(newValue: string) {
     const previousValue = JSON.stringify(this.sceneInfo);
     this.sceneInfo.mergeFrom(newValue);
+    for (const shadowId of this.sceneInfo.shadowChannels) {
+      if (!this.otherShadows.has(shadowId)) {
+        const shadow = new Shadow(new ShadowPosition(),
+          this.box.div, this.mux.get(shadowId));
+      }
+    }
     const mergedValue = JSON.stringify(this.sceneInfo);
     if (mergedValue != newValue) {
       const lockedValue = await this.sceneInfoText.takeLock();
