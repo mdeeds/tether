@@ -38,6 +38,7 @@ export class PeerGroup implements PeerGroupInterface {
       if (joinId) {
         const peerConnection = this.conn.connect(joinId);
         this.peers.set(peerConnection.peer, peerConnection);
+        this.runMeetCallbacks(peerConnection.peer);
       }
       for (const cb of this.readyCallback) {
         cb(id);
@@ -59,6 +60,7 @@ export class PeerGroup implements PeerGroupInterface {
           throw new Error('WHAT?');
         }
         this.peers.set(peerConnection.peer, peerConnection);
+        this.runMeetCallbacks(peerConnection.peer);
       }
       Log.debug(`AAAAA adding data callback for ${this.id}`);
       dataConnection.on('data', (encoded: string) => {
@@ -80,9 +82,7 @@ export class PeerGroup implements PeerGroupInterface {
         }
         const peerConnection = this.conn.connect(peerId);
         this.peers.set(peerId, peerConnection);
-        for (const f of this.meetCallbacks) {
-          f(peerId);
-        }
+        this.runMeetCallbacks(peerId);
       }
     });
 
@@ -113,6 +113,12 @@ export class PeerGroup implements PeerGroupInterface {
         Log.debug(`(${this.id}) cannot match: ${data}`);
       }
     });
+  }
+
+  private runMeetCallbacks(peerId: string) {
+    for (const f of this.meetCallbacks) {
+      f(peerId);
+    }
   }
 
   addMeetCallback(f: MeetCallbackFn) {
@@ -146,7 +152,14 @@ export class PeerGroup implements PeerGroupInterface {
       throw new Error(`Unknown target: ${toId}`);
     }
     const encoded = Wire.encode(message);
-    this.peers.get(toId).send(encoded);
+    const connection = this.peers.get(toId);
+    if (connection.open) {
+      this.peers.get(toId).send(encoded);
+    } else {
+      Log.debug(`AAAAA delayed send, connection isn't open.`);
+      setTimeout(() => { this.send(toId, message) }, 1000);
+    }
+
   }
 
   static askNumber = 0;

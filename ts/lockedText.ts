@@ -34,10 +34,25 @@ export class LockedText {
 
     this.peerGroup.addAnswer('take',
       (fromId: string, message: string) => {
-        Log.debug(`(${this.myId}) Current: ${this.currentOwnerId}; new: ${fromId}`);
+        Log.debug(
+          `(${this.myId}) Current: ${this.currentOwnerId}; new: ${fromId}`);
         this.currentOwnerId = fromId;
         return this.text;
       });
+
+    this.peerGroup.addAnswer('get',
+      (fromId: string, message: string) => {
+        return `${this.currentOwnerId}@${this.text}`;
+      });
+
+    this.peerGroup.addMeetCallback(async (newId: string) => {
+      const data = await this.peerGroup.ask(newId, 'get:please');
+      const match = data.match(/([^@]+)@([/S/s]*)/);
+      if (match[1] != 'null') {
+        this.currentOwnerId = match[1];
+        this.text = match[2];
+      }
+    });
   }
 
   addUpdateCallback(f: UpdateCallbackFn) {

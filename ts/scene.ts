@@ -63,7 +63,6 @@ export class Scene {
       }
       this.sceneInfoText.update(mergedValue);
     }
-    console.log(`BBBBB: ${JSON.stringify(this.sceneInfo, null, 2)}`);
   }
 
   /**
