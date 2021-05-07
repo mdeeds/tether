@@ -1,6 +1,7 @@
 import Peer from "peerjs";
 import { PeerGroup } from "./peerGroup";
 import { Scene } from "./scene";
+import { DraggableBox } from "./draggableBox";
 
 const body = document.getElementsByTagName('body')[0];
 
@@ -18,6 +19,10 @@ async function test() {
 
 if (url.searchParams.get('test')) {
   test();
+} else if (url.searchParams.get('boxes')) {
+  body.appendChild(new DraggableBox().elt);
+  body.appendChild(new DraggableBox().elt);
+  body.appendChild(new DraggableBox().elt);
 } else {
   const mainArea = document.createElement('div');
   mainArea.id = 'mainArea';
