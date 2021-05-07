@@ -49,3 +49,21 @@ body {
   z-index: 0;
   pointer-events: none;
 }
+
+.outer {
+  border: 2px solid green;
+  background-color: green;
+  padding: 2px;
+  margin: 2px;
+  display: inline-block;
+}
+
+.inner {
+  border-radius: 5px;
+  padding: 4px;
+  margin: 1px;
+  display: inline-block;
+  background-color: thistle;
+  color: black;
+  box-shadow: 2px 2px 2px black;
+}
