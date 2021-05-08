@@ -30,5 +30,4 @@ export class SharedBox {
       this.div.innerHTML = text;
     });
   }
-
 }

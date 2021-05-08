@@ -35,6 +35,7 @@ body {
   background-color: transparent;
   white-space: pre-wrap;
   display: inline-block;
+  overflow: auto;
 }
 
 :focus {

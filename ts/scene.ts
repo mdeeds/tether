@@ -38,13 +38,25 @@ export class Scene {
 
     this.box = new SharedBox(this.mux.get('A'), container);
     this.baseComms = baseComms;
+
+    let lastClientX = 0;
+    let lastClientY = 0;
     const hostShadow = new Shadow({
       x: 30, y: 30, ownerId: baseComms.getId(), tabId: 'A',
       hue: Math.random()
     }, this.box.div, this.mux.get(shadowChannel));
+
     this.box.div.addEventListener('mousemove', (ev: MouseEvent) => {
-      hostShadow.moveToClientXY(ev.clientX, ev.clientY);
+      lastClientX = ev.clientX;
+      lastClientY = ev.clientY;
+      const x = ev.clientX + this.box.div.scrollLeft;
+      const y = ev.clientY + this.box.div.scrollTop;
+      hostShadow.moveToClientXY(x, y);
     });
+    this.box.div.addEventListener('scroll', (ev) => {
+      hostShadow.moveToClientXY(lastClientX + this.box.div.scrollLeft,
+        lastClientY + this.box.div.scrollTop);
+    })
     this.pushUpdateSceneInfo();
   }
 
