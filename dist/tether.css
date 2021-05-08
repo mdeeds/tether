@@ -28,10 +28,13 @@ body {
 .testBox {
   box-shadow: #fff 2px 2px 5px;
   height: 100px;
+  width: 80vw;
   margin: 10px;
   padding: 2px;
   z-index: 1;
   background-color: transparent;
+  white-space: pre-wrap;
+  display: inline-block;
 }
 
 :focus {

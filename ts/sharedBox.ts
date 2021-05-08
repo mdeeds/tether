@@ -5,6 +5,7 @@ export class SharedBox {
   private lockedText: LockedText;
   readonly div: HTMLDivElement;
   private lastContent: string;
+
   constructor(peerGroup: PeerGroupInterface,
     container: HTMLDivElement | HTMLBodyElement) {
     this.lockedText = new LockedText(peerGroup);
@@ -17,7 +18,7 @@ export class SharedBox {
     this.div.addEventListener('keyup', async (ev: KeyboardEvent) => {
       if (this.lastContent != this.div.innerText) {
         if (!this.lockedText.hasLock()) {
-          this.div.innerText =
+          this.div.innerHTML =
             await this.lockedText.takeLock();
         } else {
           this.lockedText.update(this.div.innerText);
@@ -26,7 +27,7 @@ export class SharedBox {
     });
 
     this.lockedText.addUpdateCallback((text: string) => {
-      this.div.innerText = text;
+      this.div.innerHTML = text;
     });
   }
 

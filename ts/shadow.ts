@@ -4,12 +4,13 @@ import { ShadowPosition } from "./shadowPosition";
 export class Shadow {
   private position: ShadowPosition;
   private div: HTMLDivElement;
-  private textArea: HTMLDivElement;
+  private textArea: HTMLDivElement | HTMLTextAreaElement;
   private comms: PeerGroupInterface;
 
   private static shadowNumber: number = 0;
 
-  constructor(position: ShadowPosition, container: HTMLDivElement,
+  constructor(position: ShadowPosition,
+    container: HTMLDivElement | HTMLTextAreaElement,
     comms: PeerGroupInterface) {
     this.position = position;
     this.textArea = container;
