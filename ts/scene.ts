@@ -59,6 +59,7 @@ export class Scene {
       if (!this.otherShadows.has(shadowId)) {
         const shadow = new Shadow(new ShadowPosition(),
           this.box.div, this.mux.get(shadowId));
+        this.otherShadows.set(shadowId, shadow);
       }
     }
     const mergedValue = JSON.stringify(this.sceneInfo);

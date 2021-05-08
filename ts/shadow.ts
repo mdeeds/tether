@@ -7,6 +7,8 @@ export class Shadow {
   private textArea: HTMLDivElement;
   private comms: PeerGroupInterface;
 
+  private static shadowNumber: number = 0;
+
   constructor(position: ShadowPosition, container: HTMLDivElement,
     comms: PeerGroupInterface) {
     this.position = position;
@@ -21,6 +23,7 @@ export class Shadow {
     });
 
     this.div = document.createElement('div');
+    this.div.id = `Shadow#${Shadow.shadowNumber++}`;
     this.div.classList.add("shadow");
     this.div.style.setProperty(
       'filter', `saturate(120%) hue-rotate(${this.position.hue}turn)`);

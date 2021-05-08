@@ -12,9 +12,11 @@ async function test() {
   const hostGroup = await PeerGroup.make(host);
   const hostScene = new Scene(hostGroup, 'KATS', 'host', body);
 
-  const client = new Peer();
-  const clientGroup = await PeerGroup.make(client, host.id);
-  const clientScene = new Scene(clientGroup, 'KATS', 'client', body);
+  for (let i = 1; i <= 2; ++i) {
+    const client = new Peer();
+    const clientGroup = await PeerGroup.make(client, host.id);
+    const clientScene = new Scene(clientGroup, 'KATS', `client${i}`, body);
+  }
 }
 
 if (url.searchParams.get('test')) {
