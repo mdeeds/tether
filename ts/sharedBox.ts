@@ -18,8 +18,9 @@ export class SharedBox {
     this.div.addEventListener('keyup', async (ev: KeyboardEvent) => {
       if (this.lastContent != this.div.value) {
         if (!this.lockedText.hasLock()) {
-          this.div.value =
-            await this.lockedText.takeLock();
+          this.div.selectionStart--;
+          this.setText(
+            await this.lockedText.takeLock());
         } else {
           this.lockedText.update(this.div.value);
         }
@@ -27,11 +28,15 @@ export class SharedBox {
     });
 
     this.lockedText.addUpdateCallback((text: string) => {
-      const oldOffset = this.div.selectionEnd;
-      this.div.value = text;
-      this.div.selectionStart = oldOffset;
-      this.div.selectionEnd = oldOffset;
+      this.setText(text);
     });
+  }
+
+  private setText(text: string) {
+    const oldOffset = this.div.selectionStart;
+    this.div.value = text;
+    this.div.selectionStart = oldOffset;
+    this.div.selectionEnd = oldOffset;
   }
 
 }
