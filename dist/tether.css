@@ -26,17 +26,20 @@ body {
 }
 
 .testBox {
-  box-shadow: #fff 2px 2px 5px;
+  box-shadow: black 2px 2px 5px;
+  border: none;
   height: 100px;
-  width: 80vw;
+  /* width: 500px; */
   margin: 10px;
   padding: 2px;
   z-index: 1;
   background-color: transparent;
   white-space: pre-wrap;
-  display: inline-block;
+  /* display: inline-block; */
   overflow: auto;
   color: greenyellow;
+  white-space: pre;
+  resize: vertical;
 }
 
 :focus {
@@ -70,5 +73,29 @@ body {
   display: inline-block;
   background-color: thistle;
   color: black;
-  box-shadow: 2px 2px 2px black;
+  box-shadow: 2px 2px 3px black;
+}
+
+.leftRail {
+  float: left;
+  height: 100vw;
+  box-shadow: 2px 2px 3px black;  
+  border-radius: 10px;
+  margin: 10px;
+  width: 200px;
+  resize: horizontal;
+  overflow: auto;
+  white-space: pre;
+}
+
+.widget {
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px black;
+  display: inline-block;
+  padding: 5px;
+}
+
+.middle {
+  display: flex;
+  flex-direction: column;
 }

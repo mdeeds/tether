@@ -60,14 +60,15 @@ export class Shadow {
   }
 
   private internalMoveTo(x: number, y: number) {
-    const scrollOffset = this.textArea.scrollTop;
+    const scrollOffsetY = this.textArea.scrollTop;
+    const scrollOffsetX = this.textArea.scrollLeft;
     this.position.x = x;
     this.position.y = y;
     const divBB = this.textArea.getBoundingClientRect();
     const shadowBB = this.div.getBoundingClientRect();
     const r = shadowBB.width / 2;
-    this.div.style.left = `${x - r + divBB.left}px`;
-    this.div.style.top = `${y - scrollOffset - r + divBB.top}px`;
+    this.div.style.left = `${x - scrollOffsetX - r + divBB.left}px`;
+    this.div.style.top = `${y - scrollOffsetY - r + divBB.top}px`;
   }
 
   render() {

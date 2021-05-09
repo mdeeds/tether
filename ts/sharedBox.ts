@@ -38,5 +38,4 @@ export class SharedBox {
     this.div.selectionStart = oldOffset;
     this.div.selectionEnd = oldOffset;
   }
-
 }
