@@ -34,25 +34,12 @@ if (url.searchParams.get('test')) {
   body.appendChild(new DraggableBox().elt);
   body.appendChild(new DraggableBox().elt);
 } else {
-  const mainArea = document.createElement('div');
-  mainArea.id = 'mainArea';
-  body.appendChild(mainArea);
-
-  const tabList = document.createElement('div');
-  mainArea.appendChild(tabList);
-
-  const tab = document.createElement('span');
-  tab.innerText = 'party';
-  tab.classList.add('tab');
-  tabList.appendChild(tab);
-
-  const editArea = document.createElement('div');
-  mainArea.appendChild(editArea);
-  editArea.contentEditable = "true";
-  editArea.spellcheck = false;
-  editArea.id = 'editArea';
-
-  editArea.addEventListener('mousemove', (ev) => {
-
+  const rail = new LeftRail(body);
+  const middle = document.createElement('div');
+  body.appendChild(middle);
+  middle.classList.add('middle');
+  const host = new Peer();
+  PeerGroup.make(host).then((hostGroup) => {
+    new Scene(hostGroup, 'KATS', 'host', middle);
   });
 }

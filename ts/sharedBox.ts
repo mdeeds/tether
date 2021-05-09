@@ -1,7 +1,6 @@
 import { LockedText } from "./lockedText";
 import { PeerGroupInterface } from "./peerGroupInterface";
 import beautify from "js-beautify";
-import { resolve } from "path";
 
 export class SharedBox {
   private lockedText: LockedText;
