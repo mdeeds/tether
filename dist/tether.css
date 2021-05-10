@@ -99,3 +99,26 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.displayOuter {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 120px;
+  height: 80px;
+  background-color: black;
+  margin: 10px;
+  display: flex;
+}
+
+.displayOuter.large {
+  width: 600px;
+  height: 400px;
+}
+
+.displayInner {
+  border: 2px green;
+  border-radius: 5px;
+  box-shadow: 1px 1px 4px silver;
+  flex-grow: 1;
+}

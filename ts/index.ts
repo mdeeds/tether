@@ -24,7 +24,6 @@ async function test() {
     const clientGroup = await PeerGroup.make(client, host.id);
     const clientScene = new Scene(clientGroup, 'KATS', `client${i}`, middle);
   }
-
 }
 
 if (url.searchParams.get('test')) {

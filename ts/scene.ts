@@ -1,3 +1,4 @@
+import { Display } from "./display";
 import { LockedText } from "./lockedText";
 import { Log } from "./log";
 import { PeerGroupInterface } from "./peerGroupInterface";
@@ -12,6 +13,7 @@ export class Scene {
   private box: SharedBox;
   private baseComms: PeerGroupInterface;
   private otherShadows: Map<string, Shadow> = new Map<string, Shadow>();
+  private display: Display;
 
   // Common name used by all scenes.
   private joinName: string;
@@ -21,6 +23,7 @@ export class Scene {
   constructor(baseComms: PeerGroupInterface,
     joinName: string, sceneName: string,
     container: HTMLBodyElement | HTMLDivElement) {
+    this.display = new Display(container);
     this.mux = new PeerGroupMux(baseComms);
 
     const sceneInfoChannel = this.mux.get(joinName);
