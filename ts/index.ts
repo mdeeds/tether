@@ -41,8 +41,4 @@ if (url.searchParams.get('test')) {
   PeerGroup.make(host).then((hostGroup) => {
     new Scene(hostGroup, 'KATS', 'host', middle);
   });
-  const w = new Worker('engine.js');
-  w.addEventListener('message', (message) => {
-    console.log(message);
-  });
 }
