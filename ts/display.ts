@@ -1,8 +1,11 @@
 import { runInThisContext } from "vm";
+import { StorageUtil } from "./storageUtil";
 
 export class Display {
   private canvas: HTMLCanvasElement;
   private ctx: ImageBitmapRenderingContext;
+  private worker: Worker;
+
   constructor(container: HTMLDivElement | HTMLBodyElement) {
     const outer = document.createElement('div');
     outer.classList.add('displayOuter')
@@ -20,9 +23,25 @@ export class Display {
       outer.classList.toggle('large');
       this.setCanvasSize();
     });
-    let offscreen = this.canvas.transferControlToOffscreen();
-    const w = new Worker('engine.js');
-    w.postMessage({ canvas: offscreen }, [offscreen]);
+    this.updateCode("");
+  }
+
+  resetCanvas(): OffscreenCanvas {
+    // TODO: create a new canvas element.
+    return this.canvas.transferControlToOffscreen();
+  }
+
+  async updateCode(code: string) {
+    const engineCode: string = await StorageUtil.get('engine.js');
+    console.log(`Engine bytes: ${engineCode.length}`);
+    const fullSource = `${engineCode}\n${code}`;
+    const dataUrl = `data:text/html;base64,${btoa(fullSource)}`;
+    if (this.worker) {
+      this.worker.terminate();
+    }
+    this.worker = new Worker(dataUrl);
+    let offscreen = this.resetCanvas();
+    this.worker.postMessage({ canvas: offscreen }, [offscreen]);
   }
 
   private setCanvasSize() {

@@ -1,4 +1,8 @@
+import { Sprite } from "./sprite";
+
 var frameNumber = 0;
+
+const s = new Sprite();
 
 function render(
   canvas: OffscreenCanvas,
@@ -20,6 +24,8 @@ function render(
     frameNumber * 10 % 600 - 300, frameNumber * 9 % 400 - 200, 25,
     -Math.PI, Math.PI);
   ctx.stroke();
+
+  s.render(ctx);
 
   ++frameNumber;
   requestAnimationFrame(() => { render(canvas, ctx); });
