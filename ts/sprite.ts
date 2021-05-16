@@ -1,12 +1,13 @@
+import { BitmapWorker } from "./bitmapWorker";
+
 export class Sprite {
   public x: number = 0;
   public y: number = 0;
 
-  private costume: ImageBitmap;
+  private costume: ImageBitmap = null;
 
   constructor() {
-    // this.costume = document.createElement('img');
-    // this.costume.src = 'img/Blue Ghost.png';
+    this.setCostume('img/Blue Ghost.png');
     this.whenStarted();
   }
 
@@ -14,15 +15,20 @@ export class Sprite {
 
   public onEveryFrame() { }
 
-  public setCostume(uri: string) {
-    // this.costume.src = uri;
+  public async setCostume(uri: string) {
+    this.costume = await BitmapWorker.get(uri);
   }
 
   public render(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
-    // const x = this.x - this.costume.width / 2;
-    // const y = this.y - this.costume.height / 2;
-    // ctx.drawImage(this.costume, x, y);
+    if (this.costume === null) {
+      ctx.fillStyle = '#0ff';
+      ctx.fillRect(this.x - 10, this.y - 10, 20, 20);
+    } else {
+      const x = this.x - this.costume.width / 2;
+      const y = this.y - this.costume.height / 2;
+      ctx.drawImage(this.costume, x, y);
+    }
     this.onEveryFrame();
   }
 }

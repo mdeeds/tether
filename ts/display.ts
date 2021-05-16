@@ -1,4 +1,5 @@
 import { runInThisContext } from "vm";
+import { BitmapCache } from "./bitmapCache";
 import { StorageUtil } from "./storageUtil";
 
 export class Display {
@@ -42,6 +43,18 @@ export class Display {
     this.worker = new Worker(dataUrl);
     let offscreen = this.resetCanvas();
     this.worker.postMessage({ canvas: offscreen }, [offscreen]);
+    this.worker.addEventListener('message', async (ev) => {
+      switch (ev.data['command']) {
+        case 'getBitmap':
+          const uri: string = ev.data['uri'];
+          const bitmap = await BitmapCache.get(ev.data['uri']);
+          this.worker.postMessage({
+            bitmap: bitmap,
+            uri: uri
+          }, [bitmap]);
+          break;
+      }
+    });
   }
 
   private setCanvasSize() {

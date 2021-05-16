@@ -1,3 +1,4 @@
+import { BitmapWorker } from "./bitmapWorker";
 import { Sprite } from "./sprite";
 
 var frameNumber = 0;
@@ -33,10 +34,15 @@ function render(
 
 onmessage = function (evt) {
   console.log('Message!');
-  const canvas = evt.data['canvas'];
-  console.log(canvas);
-  const ctx = canvas.getContext("2d");
-  render(canvas, ctx);
+  if (evt.data['canvas']) {
+    const canvas = evt.data['canvas'];
+    console.log(canvas);
+    const ctx = canvas.getContext("2d");
+    render(canvas, ctx);
+  }
+  if (evt.data['bitmap']) {
+    BitmapWorker.set(evt.data['uri'], evt.data['bitmap']);
+  }
 };
 
 if (typeof document === 'undefined') {
