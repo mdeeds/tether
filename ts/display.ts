@@ -1,10 +1,8 @@
-import { runInThisContext } from "vm";
 import { BitmapCache } from "./bitmapCache";
 import { StorageUtil } from "./storageUtil";
 
 export class Display {
   private canvas: HTMLCanvasElement;
-  private ctx: ImageBitmapRenderingContext;
   private worker: Worker;
 
   constructor(container: HTMLDivElement | HTMLBodyElement) {
