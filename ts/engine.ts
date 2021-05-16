@@ -33,10 +33,8 @@ function render(
 }
 
 onmessage = function (evt) {
-  console.log('Message!');
   if (evt.data['canvas']) {
     const canvas = evt.data['canvas'];
-    console.log(canvas);
     const ctx = canvas.getContext("2d");
     render(canvas, ctx);
   }
@@ -44,7 +42,3 @@ onmessage = function (evt) {
     BitmapWorker.set(evt.data['uri'], evt.data['bitmap']);
   }
 };
-
-if (typeof document === 'undefined') {
-  console.log('Engine!');
-}
