@@ -3,7 +3,7 @@ export class StorageUtil {
   static get(fileName: string): Promise<string> {
     if (StorageUtil.cache.has(fileName)) {
       return new Promise((resolve, reject) => {
-        resolve(StorageUtil.get(fileName));
+        resolve(StorageUtil.cache.get(fileName));
       })
     }
     return new Promise((resolve, reject) => {

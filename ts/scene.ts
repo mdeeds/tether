@@ -23,7 +23,8 @@ export class Scene {
   constructor(baseComms: PeerGroupInterface,
     joinName: string, sceneName: string,
     container: HTMLBodyElement | HTMLDivElement) {
-    this.display = new Display(container);
+    this.display = new Display(container,
+      () => { return this.concatenateCode(); });
     this.mux = new PeerGroupMux(baseComms);
 
     const sceneInfoChannel = this.mux.get(joinName);
@@ -59,8 +60,13 @@ export class Scene {
     this.box.div.addEventListener('scroll', (ev) => {
       hostShadow.moveToClientXY(lastClientX + this.box.div.scrollLeft,
         lastClientY + this.box.div.scrollTop);
-    })
+    });
+
     this.pushUpdateSceneInfo();
+  }
+
+  private concatenateCode(): string {
+    return this.box.div.value;
   }
 
   /**

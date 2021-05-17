@@ -1,32 +1,42 @@
 import { BitmapCache } from "./bitmapCache";
 import { StorageUtil } from "./storageUtil";
 
+type CodeSource = () => string;
+
 export class Display {
   private canvas: HTMLCanvasElement;
+  private outer: HTMLDivElement;
+  private inner: HTMLDivElement;
   private worker: Worker;
+  private codeSource: CodeSource;
 
-  constructor(container: HTMLDivElement | HTMLBodyElement) {
-    const outer = document.createElement('div');
-    outer.classList.add('displayOuter')
-    outer.classList.add('large');
-    container.appendChild(outer);
-    const inner = document.createElement('div');
-    inner.classList.add('displayInner');
-    outer.appendChild(inner);
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = 600;
-    this.canvas.height = 400;
-    inner.appendChild(this.canvas);
-    // this.setCanvasSize();
-    this.canvas.addEventListener('click', (ev: MouseEvent) => {
-      outer.classList.toggle('large');
-      this.setCanvasSize();
-    });
+  constructor(container: HTMLDivElement | HTMLBodyElement,
+    codeSource: CodeSource) {
+    this.codeSource = codeSource;
+    this.outer = document.createElement('div');
+    this.outer.classList.add('displayOuter')
+    this.outer.classList.add('large');
+    container.appendChild(this.outer);
+    this.inner = document.createElement('div');
+    this.inner.classList.add('displayInner');
+    this.outer.appendChild(this.inner);
     this.updateCode("");
   }
 
   resetCanvas(): OffscreenCanvas {
-    // TODO: create a new canvas element.
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = 600;
+    this.canvas.height = 400;
+    this.inner.innerHTML = "";
+    this.inner.appendChild(this.canvas);
+    // this.setCanvasSize();
+    this.canvas.addEventListener('click', (ev: MouseEvent) => {
+      this.outer.classList.toggle('large');
+      this.setCanvasSize();
+      if (this.outer.classList.contains('large')) {
+        this.updateCode(this.codeSource());
+      }
+    });
     return this.canvas.transferControlToOffscreen();
   }
 
