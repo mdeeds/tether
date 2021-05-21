@@ -15,7 +15,6 @@ export class Display {
     this.codeSource = codeSource;
     this.outer = document.createElement('div');
     this.outer.classList.add('displayOuter')
-    this.outer.classList.add('large');
     container.appendChild(this.outer);
     this.inner = document.createElement('div');
     this.inner.classList.add('displayInner');
@@ -25,8 +24,8 @@ export class Display {
 
   resetCanvas(): OffscreenCanvas {
     this.canvas = document.createElement('canvas');
-    this.canvas.width = 600;
-    this.canvas.height = 400;
+    this.canvas.width = 1200;
+    this.canvas.height = 800;
     this.inner.innerHTML = "";
     this.inner.appendChild(this.canvas);
     // this.setCanvasSize();
@@ -66,8 +65,10 @@ export class Display {
   }
 
   private setCanvasSize() {
-    const parentBB = this.canvas.parentElement.parentElement.getBoundingClientRect();
-    this.canvas.style.setProperty('width', `${parentBB.width}px`)
-    this.canvas.style.setProperty('height', `${parentBB.height}px`)
+    setTimeout(() => {
+      const parentBB = this.canvas.parentElement.parentElement.getBoundingClientRect();
+      this.canvas.style.setProperty('width', `${parentBB.width}px`)
+      this.canvas.style.setProperty('height', `${parentBB.height}px`)
+    }, 0);
   }
 }
