@@ -1,4 +1,6 @@
 export class StorageUtil {
+  private static cacheBuster = `${Math.random()}`;
+
   private static cache = new Map<string, string>();
   static get(fileName: string): Promise<string> {
     if (StorageUtil.cache.has(fileName)) {
@@ -18,7 +20,7 @@ export class StorageUtil {
           }
         }
       };
-      console.log(`GET ${fileName}`);
+      console.log(`GET ${fileName}?_=${StorageUtil.cacheBuster}`);
       xhttp.open("GET", fileName, true);
       xhttp.responseType = 'text';
       xhttp.send();

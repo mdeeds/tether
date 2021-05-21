@@ -112,8 +112,10 @@ body {
 }
 
 .displayOuter.large {
-  width: 600px;
-  height: 400px;
+  width: 60vw;
+  height: 40vw;
+  left: 20vw;
+  top: calc((100vh - 40vw) / 2);
 }
 
 .displayInner {
@@ -121,4 +123,8 @@ body {
   border-radius: 5px;
   box-shadow: 1px 1px 4px silver;
   flex-grow: 1;
+}
+
+canvas {
+  background-color: white;
 }
