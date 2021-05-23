@@ -1,3 +1,4 @@
+import { Debounce } from "./debounce";
 import { Log } from "./log";
 import { PeerGroupInterface } from "./peerGroupInterface";
 
@@ -9,6 +10,7 @@ export class LockedText {
   private currentOwnerId: string = null;
   private text: string = "";
   private updateCallbacks: UpdateCallbackFn[] = [];
+  private updateDebounce = new Debounce(1000);
 
   constructor(comms: PeerGroupInterface, initialValue: string = null) {
     this.myId = comms.getId();
@@ -94,7 +96,9 @@ export class LockedText {
     if (this.currentOwnerId === this.myId || this.currentOwnerId === null) {
       this.currentOwnerId = this.myId;
       this.text = text;
-      this.peerGroup.broadcast('update', text);
+      this.updateDebounce.go(() => {
+        this.peerGroup.broadcast('update', text);
+      });
       return true;
     }
     return false;
