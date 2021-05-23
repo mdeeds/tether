@@ -91,6 +91,9 @@ export class LockedText {
    * client no longer holds the lock.
    */
   update(text: string): boolean {
+    if (text === this.text) {
+      return true;
+    }
     Log.debug(`(${this.myId}) update(${text}) ` +
       `Current: ${this.currentOwnerId}; new: ${this.myId}`);
     if (this.currentOwnerId === this.myId || this.currentOwnerId === null) {
