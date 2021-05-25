@@ -26,19 +26,34 @@ async function test() {
   }
 }
 
-if (url.searchParams.get('test')) {
-  test();
-} else if (url.searchParams.get('boxes')) {
-  body.appendChild(new DraggableBox().elt);
-  body.appendChild(new DraggableBox().elt);
-  body.appendChild(new DraggableBox().elt);
-} else {
+async function go() {
   const rail = new LeftRail(body);
   const middle = document.createElement('div');
   body.appendChild(middle);
   middle.classList.add('middle');
-  const host = new Peer();
-  PeerGroup.make(host).then((hostGroup) => {
-    new Scene(hostGroup, 'KATS', 'host', middle);
-  });
+  const p = new Peer();
+
+  let group: PeerGroup = null;
+  if (url.searchParams.get('join')) {
+    const hostId = url.searchParams.get('join');
+    group = await PeerGroup.make(p, hostId);
+  } else {
+    group = await PeerGroup.make(p);
+    const b = document.createElement('div');
+    b.classList.add('joinBox');
+    middle.appendChild(b);
+    const a = document.createElement('a');
+    const joinUrl = new URL(url.href);
+    joinUrl.searchParams.append('join', p.id);
+    a.href = `${joinUrl.href}`;
+    a.innerText = a.href;
+    b.appendChild(a);
+  }
+  new Scene(group, 'KATS', p.id, middle);
+}
+
+if (url.searchParams.get('test')) {
+  test();
+} else {
+  go();
 }

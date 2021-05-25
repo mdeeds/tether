@@ -128,3 +128,18 @@ body {
 canvas {
   background-color: white;
 }
+
+.joinBox {
+  padding: 2px;
+  margin: 2px;
+  border-radius: 3px;
+  box-shadow: 2px 2px 3px black;
+}
+
+.joinBox:hover {
+  background-color: #333;
+}
+
+a {
+  color: aliceblue;
+}
