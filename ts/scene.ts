@@ -16,7 +16,6 @@ export class Scene {
   private display: Display;
 
   // Common name used by all scenes.
-  private joinName: string;
   private sceneInfoText: LockedText;
   private sceneInfo: SceneInfo;
 
@@ -39,6 +38,15 @@ export class Scene {
     this.sceneInfoText.addUpdateCallback((newValue: string) => {
       this.handleUpdateSceneInfo(newValue);
     });
+
+    const tileNameDiv = document.createElement('div');
+    tileNameDiv.classList.add('tileName');
+    tileNameDiv.innerText = 'A ';
+    const newTile = document.createElement('span');
+    newTile.classList.add('button');
+    newTile.innerHTML = '&#128472;';  // &#8644;
+    tileNameDiv.appendChild(newTile);
+    container.appendChild(tileNameDiv);
 
     this.box = new SharedBox(this.mux.get('A'), container);
     this.baseComms = baseComms;
