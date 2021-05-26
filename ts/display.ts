@@ -26,6 +26,8 @@ export class Display {
     this.canvas = document.createElement('canvas');
     this.canvas.width = 1200;
     this.canvas.height = 800;
+    // this.canvas.setAttribute('width', '0');
+    // this.canvas.setAttribute('height', '0');
     this.inner.innerHTML = "";
     this.inner.appendChild(this.canvas);
     // this.setCanvasSize();

@@ -28,7 +28,7 @@ body {
 .testBox {
   box-shadow: black 2px 2px 5px;
   border: none;
-  height: 100px;
+  height: 400px;
   /* width: 500px; */
   margin: 10px;
   padding: 2px;
@@ -82,7 +82,7 @@ body {
   box-shadow: 2px 2px 3px black;  
   border-radius: 10px;
   margin: 10px;
-  width: 200px;
+  width: 300px;
   resize: horizontal;
   overflow: auto;
   white-space: pre;
@@ -126,7 +126,9 @@ body {
 }
 
 canvas {
+  position: absolute;
   background-color: white;
+  z-index: 100;
 }
 
 .joinBox {
