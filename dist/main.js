@@ -49,6 +49,34 @@ BitmapCache.cache = new Map();
 
 /***/ }),
 
+/***/ 762:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Debounce = void 0;
+class Debounce {
+    constructor(sendDelayMs) {
+        this.previousTimeout = null;
+        this.sendDelayMs = sendDelayMs;
+        this.lastActionTime = window.performance.now();
+    }
+    go(f) {
+        const timeSinceLast = window.performance.now() - this.lastActionTime;
+        const remainingDelay = Math.max(0, this.sendDelayMs - timeSinceLast);
+        clearTimeout(this.previousTimeout);
+        this.previousTimeout = setTimeout(() => {
+            this.lastActionTime = window.performance.now();
+            f();
+        }, remainingDelay);
+    }
+}
+exports.Debounce = Debounce;
+//# sourceMappingURL=debounce.js.map
+
+/***/ }),
+
 /***/ 642:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -82,6 +110,8 @@ class Display {
         this.canvas = document.createElement('canvas');
         this.canvas.width = 1200;
         this.canvas.height = 800;
+        // this.canvas.setAttribute('width', '0');
+        // this.canvas.setAttribute('height', '0');
         this.inner.innerHTML = "";
         this.inner.appendChild(this.canvas);
         // this.setCanvasSize();
@@ -133,43 +163,6 @@ exports.Display = Display;
 
 /***/ }),
 
-/***/ 39:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DraggableBox = void 0;
-class DraggableBox {
-    constructor() {
-        this.elt = document.createElement('span');
-        this.elt.id = `elt${DraggableBox.id++}`;
-        this.elt.draggable = true;
-        this.elt.innerHTML = 'a <span></span> a';
-        this.elt.classList.add('outer');
-        for (const innerSpan of this.elt.getElementsByTagName('span')) {
-            innerSpan.addEventListener('dragover', (ev) => {
-                ev.preventDefault();
-            });
-            innerSpan.classList.add('inner');
-            innerSpan.addEventListener('drop', (ev) => {
-                const sourceNode = document.getElementById(ev.dataTransfer.getData('text/plain'));
-                // innerSpan.remove();
-                innerSpan.appendChild(sourceNode);
-            });
-            innerSpan.contentEditable = 'true';
-        }
-        this.elt.addEventListener('dragstart', (ev) => {
-            ev.dataTransfer.setData('text/plain', this.elt.id);
-        });
-    }
-}
-exports.DraggableBox = DraggableBox;
-DraggableBox.id = 0;
-//# sourceMappingURL=draggableBox.js.map
-
-/***/ }),
-
 /***/ 138:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -191,7 +184,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const peerjs_1 = __importDefault(__webpack_require__(755));
 const peerGroup_1 = __webpack_require__(205);
 const scene_1 = __webpack_require__(461);
-const draggableBox_1 = __webpack_require__(39);
 const leftRail_1 = __webpack_require__(282);
 const body = document.getElementsByTagName('body')[0];
 const url = new URL(document.URL);
@@ -211,23 +203,38 @@ function test() {
         }
     });
 }
+function go() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const rail = new leftRail_1.LeftRail(body);
+        const middle = document.createElement('div');
+        body.appendChild(middle);
+        middle.classList.add('middle');
+        const p = new peerjs_1.default();
+        let group = null;
+        if (url.searchParams.get('join')) {
+            const hostId = url.searchParams.get('join');
+            group = yield peerGroup_1.PeerGroup.make(p, hostId);
+        }
+        else {
+            group = yield peerGroup_1.PeerGroup.make(p);
+            const b = document.createElement('div');
+            b.classList.add('joinBox');
+            middle.appendChild(b);
+            const a = document.createElement('a');
+            const joinUrl = new URL(url.href);
+            joinUrl.searchParams.append('join', p.id);
+            a.href = `${joinUrl.href}`;
+            a.innerText = a.href;
+            b.appendChild(a);
+        }
+        new scene_1.Scene(group, 'KATS', p.id, middle);
+    });
+}
 if (url.searchParams.get('test')) {
     test();
 }
-else if (url.searchParams.get('boxes')) {
-    body.appendChild(new draggableBox_1.DraggableBox().elt);
-    body.appendChild(new draggableBox_1.DraggableBox().elt);
-    body.appendChild(new draggableBox_1.DraggableBox().elt);
-}
 else {
-    const rail = new leftRail_1.LeftRail(body);
-    const middle = document.createElement('div');
-    body.appendChild(middle);
-    middle.classList.add('middle');
-    const host = new peerjs_1.default();
-    peerGroup_1.PeerGroup.make(host).then((hostGroup) => {
-        new scene_1.Scene(hostGroup, 'KATS', 'host', middle);
-    });
+    go();
 }
 //# sourceMappingURL=index.js.map
 
@@ -294,12 +301,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LockedText = void 0;
+const debounce_1 = __webpack_require__(762);
 const log_1 = __webpack_require__(151);
 class LockedText {
     constructor(comms, initialValue = null) {
         this.currentOwnerId = null;
         this.text = "";
         this.updateCallbacks = [];
+        this.updateDebounce = new debounce_1.Debounce(1000);
         this.myId = comms.getId();
         this.peerGroup = comms;
         if (initialValue) {
@@ -368,12 +377,17 @@ class LockedText {
      * client no longer holds the lock.
      */
     update(text) {
+        if (text === this.text) {
+            return true;
+        }
         log_1.Log.debug(`(${this.myId}) update(${text}) ` +
             `Current: ${this.currentOwnerId}; new: ${this.myId}`);
         if (this.currentOwnerId === this.myId || this.currentOwnerId === null) {
             this.currentOwnerId = this.myId;
             this.text = text;
-            this.peerGroup.broadcast('update', text);
+            this.updateDebounce.go(() => {
+                this.peerGroup.broadcast('update', text);
+            });
             return true;
         }
         return false;
@@ -790,6 +804,7 @@ const sceneInfo_1 = __webpack_require__(408);
 const shadow_1 = __webpack_require__(230);
 const shadowPosition_1 = __webpack_require__(315);
 const sharedBox_1 = __webpack_require__(398);
+const tile_1 = __webpack_require__(750);
 class Scene {
     constructor(baseComms, joinName, sceneName, container) {
         this.otherShadows = new Map();
@@ -805,6 +820,17 @@ class Scene {
         this.sceneInfoText.addUpdateCallback((newValue) => {
             this.handleUpdateSceneInfo(newValue);
         });
+        const tileNameDiv = document.createElement('div');
+        tileNameDiv.classList.add('tileName');
+        tileNameDiv.innerText = 'A ';
+        const newTile = document.createElement('span');
+        newTile.classList.add('button');
+        newTile.innerHTML = '&#128472;'; // &#8644;
+        newTile.addEventListener('click', (ev) => {
+            tile_1.Tile.display(['Foo', 'A', 'Bar']);
+        });
+        tileNameDiv.appendChild(newTile);
+        container.appendChild(tileNameDiv);
         this.box = new sharedBox_1.SharedBox(this.mux.get('A'), container);
         this.baseComms = baseComms;
         let lastClientX = 0;
@@ -1136,6 +1162,39 @@ exports.StorageUtil = StorageUtil;
 StorageUtil.cacheBuster = `${Math.random()}`;
 StorageUtil.cache = new Map();
 //# sourceMappingURL=storageUtil.js.map
+
+/***/ }),
+
+/***/ 750:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Tile = void 0;
+class Tile {
+    static display(tileNames) {
+        const bg = document.createElement('div');
+        bg.id = 'tileSelector';
+        const body = document.getElementsByTagName('body')[0];
+        body.appendChild(bg);
+        for (const t of tileNames) {
+            const tile = document.createElement('span');
+            tile.innerText = t;
+            tile.classList.add('tile');
+            bg.appendChild(tile);
+        }
+        const tile = document.createElement('span');
+        tile.classList.add('tile');
+        tile.innerHTML = '&#2795;';
+        bg.appendChild(tile);
+        return new Promise((resolve, reject) => {
+            resolve('TODO!');
+        });
+    }
+}
+exports.Tile = Tile;
+//# sourceMappingURL=tile.js.map
 
 /***/ }),
 
