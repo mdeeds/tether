@@ -25,6 +25,33 @@ body {
   margin: 5px;
 }
 
+#tileSelector {
+  position: absolute;
+  width: 80vw;
+  height: 80vh;
+  top: 10vh;
+  left: 10vw;
+  background-color: black;
+  z-index: 200;
+}
+
+.tile {
+  box-shadow: #c88 2px 2px 8px;
+  height: 100px;
+  width: 100px;
+  color: yellowgreen;
+  font-size: 28px;
+  display: inline-block;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
+}
+
+.tile:hover {
+  box-shadow: #c88 2px 2px 12px;
+  offset: -2px -2px;
+}
+
 .testBox {
   box-shadow: black 2px 2px 5px;
   border: none;

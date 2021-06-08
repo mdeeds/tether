@@ -7,6 +7,7 @@ import { SceneInfo } from "./sceneInfo";
 import { Shadow } from "./shadow";
 import { ShadowPosition } from "./shadowPosition";
 import { SharedBox } from "./sharedBox";
+import { Tile } from "./tile";
 
 export class Scene {
   private mux: PeerGroupMux;
@@ -45,6 +46,9 @@ export class Scene {
     const newTile = document.createElement('span');
     newTile.classList.add('button');
     newTile.innerHTML = '&#128472;';  // &#8644;
+    newTile.addEventListener('click', (ev) => {
+      Tile.display(['Foo', 'A', 'Bar']);
+    });
     tileNameDiv.appendChild(newTile);
     container.appendChild(tileNameDiv);
 
